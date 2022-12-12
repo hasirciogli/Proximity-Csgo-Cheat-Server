@@ -20,7 +20,7 @@ namespace RogsoftwareServer.packet.handlers
         {
             JObject obj;
             string packetID;
-            try
+            try 
             {
                 obj         = JObject.Parse(data);
                 packetID    = obj.SelectToken("packet_id").ToString();
