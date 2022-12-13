@@ -96,7 +96,7 @@ public class Client
         this.soket.Dispose();
 
         Globals.removeUser(this.clientID);
-
+         
         if (rfccl)
             Server.connectedClients.Remove(this);
     }
