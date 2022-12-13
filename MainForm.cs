@@ -2,13 +2,11 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
-using RogsoftwareServer.Libs;
 
 namespace RogsoftwareServer
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form 
     {
-
         public MainForm()
         {
             InitializeComponent();
@@ -33,7 +31,7 @@ namespace RogsoftwareServer
 
         private void serverStartButton_Click(object sender, EventArgs e)
         {
-            Server.Server.runServer();
+            Server.Server.runServer(); 
         }
 
         private void commandSendButton_Click_1(object sender, EventArgs e)
@@ -46,6 +44,7 @@ namespace RogsoftwareServer
             {
                 byte[] b = new byte[8192];
                 b = Encoding.UTF8.GetBytes(commandBox.Text);
+
                 item.soket.Send(b, 0, b.Length,SocketFlags.None);
             });
         }
@@ -56,6 +55,19 @@ namespace RogsoftwareServer
             LogBox.SelectionStart = LogBox.Text.Length;
             // LogBox it automatically
             LogBox.ScrollToCaret();
+        }
+
+        private void serverStopButton_Click(object sender, EventArgs e)
+        {
+            Server.Server.ServerSocket.Close();
+            Server.Server.ServerSocket.Dispose();
+
+            foreach (Client item in Server.Server.connectedClients)
+            {
+                item.fuckOffThisClient(false);
+            }
+
+            Server.Server.connectedClients.Clear();
         }
     }
 }

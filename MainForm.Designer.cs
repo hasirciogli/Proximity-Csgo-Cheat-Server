@@ -47,6 +47,7 @@
             this.serverStopButton.TabIndex = 6;
             this.serverStopButton.Text = "STOP";
             this.serverStopButton.UseVisualStyleBackColor = true;
+            this.serverStopButton.Click += new System.EventHandler(this.serverStopButton_Click);
             // 
             // serverStartButton
             // 

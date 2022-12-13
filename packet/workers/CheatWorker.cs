@@ -61,7 +61,7 @@ namespace RogsoftwareServer.packet.workers
 
                                 PacketJsonSerializes.CheatPacketData.serverToClient.ServerLoginPacketData slpd = new PacketJsonSerializes.CheatPacketData.serverToClient.ServerLoginPacketData();
 
-                                slpd.packet_id = (int)PacketEnums.CHEAT.ServerToClient.USER_AUTH_RESPONSE;
+                                slpd.packet_id = (int)PacketEnums.CHEAT.ServerToClient.USER_AUTH;
 
                                 slpd.data.isSuccess = true;
                                 slpd.data.token = uToken;
@@ -77,7 +77,7 @@ namespace RogsoftwareServer.packet.workers
                             {
                                 PacketJsonSerializes.CheatPacketData.serverToClient.ServerLoginPacketData slpd = new PacketJsonSerializes.CheatPacketData.serverToClient.ServerLoginPacketData();
 
-                                slpd.packet_id = (int)PacketEnums.CHEAT.ServerToClient.USER_AUTH_RESPONSE;
+                                slpd.packet_id = (int)PacketEnums.CHEAT.ServerToClient.USER_AUTH;
 
                                 slpd.data.isSuccess = false;
                                 slpd.data.token = "Not work man we are sorry :(, but good have a day! hahaha";
