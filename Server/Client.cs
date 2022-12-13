@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using RogsoftwareServer.packet.handlers;
 using RogsoftwareServer.Server;
 using System;
 using System.Collections.Generic;
@@ -25,10 +26,6 @@ public class Client
         Globals.addNewUser(this.clientID, "nall", "Bay kemal");
 
         this.runClient(skt);
-
-
-        Thread tred = new Thread(new ThreadStart(sendSNC));
-        tred.Start();
     }
 
     public void runClient(Socket skt)
@@ -51,11 +48,11 @@ public class Client
                 if (Globals.loggerConfig.isDebugMode)
                 {
                     string pData = Encoding.UTF8.GetString(this.data);
-                    JObject test = JObject.Parse(pData);
+                    CheatPacketHandler cph = new CheatPacketHandler(this, pData);
 
-                    object data = JsonConvert.DeserializeObject(pData);
+                    if (!cph.Handle())
+                        this.fuckOffThisClient();
 
-                    Globals.LoggerG.Log(test.SelectToken("sfun2").ToString());
                     //Globals.LoggerG.Log("Data received -> " + pData + " ;(END)"); Globals.LoggerG.Log("");
                 }
             }
@@ -78,25 +75,17 @@ public class Client
         Server.connectedClients.Remove(this);
     }
 
-    public void sendSNC()
+
+    public void sendData(byte[] data)
     {
-        while (this.soket.Connected && !forceCloseThisClient)
-        {
-            SocketError sErr;
-            byte[] newByte = Encoding.UTF8.GetBytes("Merhaba servere hoşgeldin :)))))");
-            soket.Send(newByte, 0, newByte.Length, SocketFlags.None, out sErr);
+        this.soket.Send(data, 0, data.Length, SocketFlags.None);
+    }
 
-            if(sErr != 0)
-            {
-                this.fuckOffThisClient();
-            }
+    public void sendData(string _data)
+    {
+        byte[] data = new byte[8192];
+        data = Encoding.UTF8.GetBytes(_data);
 
-            Thread.Sleep(1000);
-
-            if (forceCloseThisClient)
-            {
-                break;
-            }
-        }
+        this.soket.Send(data, 0, data.Length, SocketFlags.None);
     }
 }

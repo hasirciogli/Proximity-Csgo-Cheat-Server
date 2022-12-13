@@ -41,4 +41,9 @@ public static class Globals
     }
 
     public static logCFG loggerConfig;
+
+    public static class databaseConfig
+    {
+        public static string connectorString = $"SERVER=localhost;DATABASE=cheat;UID=root;PASSWORD=1234;";
+    }
 }

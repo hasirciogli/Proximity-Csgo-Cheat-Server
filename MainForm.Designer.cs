@@ -103,7 +103,7 @@
             // 
             this.LogBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.LogBox.Cursor = System.Windows.Forms.Cursors.Arrow;
-            this.LogBox.Location = new System.Drawing.Point(13, 13);
+            this.LogBox.Location = new System.Drawing.Point(12, 13);
             this.LogBox.Name = "LogBox";
             this.LogBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.None;
             this.LogBox.Size = new System.Drawing.Size(632, 437);

@@ -21,5 +21,26 @@ namespace PacketJsonSerializes
                 public string userHWID;
             }
         }
+
+        namespace serverToClient
+        {
+            public class ServerFirstAuthPacketData
+            {
+                
+            }
+
+            public class ServerLoginPacketData
+            {
+                public class thisZData
+                {
+                    public bool isSuccess = false;
+                    public string token = "";
+                }
+
+                public int packet_id = 0;
+                public thisZData data = new thisZData();
+            }
+            
+        }
     }
 }

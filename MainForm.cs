@@ -1,22 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using RogsoftwareServer.Server;
+using RogsoftwareServer.Libs;
 
 namespace RogsoftwareServer
 {
     public partial class MainForm : Form
     {
+
         public MainForm()
         {
             InitializeComponent();
@@ -36,12 +28,6 @@ namespace RogsoftwareServer
 
         private void CommandSendButton_Click(object sender, EventArgs e)
         {
-            ConsoleLogger logger = new ConsoleLogger();
-            logger.Log("qwe");
-        }
-
-        private void kryptonCheckedListBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
 
         }
 
@@ -52,6 +38,10 @@ namespace RogsoftwareServer
 
         private void commandSendButton_Click_1(object sender, EventArgs e)
         {
+
+            //Globals.LoggerG.Log("HOT RELOAD WORK :)");
+            //return;
+            
             Server.Server.connectedClients.ForEach((item) =>
             {
                 byte[] b = new byte[8192];
