@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Asn1.Cms;
 
 namespace RogsoftwareServer.packet.workers
 {
@@ -14,15 +16,17 @@ namespace RogsoftwareServer.packet.workers
     {
         public class fromClientToServer
         {
-            public bool UserAuth(Client _cl, string fullData)
+            public bool UserAuth(Client _cl, byte[] fullData)
             {
                 try
                 {
-                    JObject jsonObject = JObject.Parse(fullData);
+                    string workerString = Encoding.UTF8.GetString(fullData);
+
+                    JObject jsonObject = JObject.Parse(workerString);
 
                     jsonObject = JObject.Parse(jsonObject.SelectToken("data").ToString());
 
-                    var userHWID = jsonObject.SelectToken("hwid").ToString() ?? throw new ArgumentNullException("jsonObject.SelectToken(\"hwid\").ToString()");
+                    var userHWID = jsonObject.SelectToken("hwid").ToString();
 
                     //Globals.LoggerG.Log(fullData);
                     //Globals.LoggerG.Log(userHWID);
@@ -59,17 +63,6 @@ namespace RogsoftwareServer.packet.workers
                                 //Globals.LoggerG.Log("yes token grabbed " + uToken);
                                 // TODO: Token grabbed so you need to send okPacket :)
 
-                                PacketJsonSerializes.CheatPacketData.serverToClient.ServerLoginPacketData slpd = new PacketJsonSerializes.CheatPacketData.serverToClient.ServerLoginPacketData();
-
-                                slpd.packet_id = (int)PacketEnums.CHEAT.ServerToClient.USER_AUTH;
-
-                                slpd.data.isSuccess = true;
-                                slpd.data.token = uToken;
-
-
-                                string tjo = JsonConvert.SerializeObject(slpd);
-
-                                _cl.sendData(tjo);
 
                                 return true;
                             }
@@ -96,6 +89,57 @@ namespace RogsoftwareServer.packet.workers
                 }
                 catch (Exception ex)
                 {
+                    return false;
+                }
+
+                return false;
+            }
+
+            public bool ChatMessageSent(Client _cl, byte[] fullData)
+            {
+                try
+                {
+                    string workerString = Encoding.UTF8.GetString(fullData);
+
+                    JObject jsonObject = JObject.Parse(workerString);
+
+                    jsonObject = JObject.Parse(jsonObject.SelectToken("data").ToString());
+
+                    string author   = (string)jsonObject.SelectToken("message_author").ToString();
+                    string content  = (string)jsonObject.SelectToken("message_content").ToString();
+
+                    PacketJsonSerializes.CheatPacketData.serverToClient.CHAT_MESSAGE_SENT cms = new PacketJsonSerializes.CheatPacketData.serverToClient.CHAT_MESSAGE_SENT();
+
+                    cms.packet_id = (int)PacketEnums.CHEAT.ServerToClient.CHAT_MESSAGE_SENT;
+
+                    cms.data.message_id = 1;
+                    cms.data.message_author_color = "#e02d42";
+                    cms.data.message_content_color = "#d9a33f";
+                    cms.data.message_author = author;
+                    cms.data.message_content = content;
+                    cms.data.message_date = DateTime.Now.ToString("F");
+
+
+
+
+                    string tjo = JsonConvert.SerializeObject(cms);
+
+                    Server.Server.connectedClients.ForEach((item) =>
+                    {
+                        if(item.soket != null) 
+                            if(item.soket.Connected)
+                                item.sendData(tjo);
+                    });
+
+                    Globals.LoggerG.Log("sented dataa -> " + tjo + "ok");
+
+
+                    return false;
+                }
+                catch (Exception e)
+                {
+                    if (Globals.loggerConfig.isDebugMode)
+                        Globals.LoggerG.Log("new data camed data handler of inside try excetion - called");
                     return false;
                 }
 

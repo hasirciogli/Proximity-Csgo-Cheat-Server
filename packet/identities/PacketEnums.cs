@@ -16,6 +16,7 @@ namespace PacketEnums
             CONFIG_LOAD,
             CONFIG_REFRESH,
             CONFIG_REMOVE,
+            CHAT_MESSAGE_SENT,
         }
 
         enum ClientToServer
@@ -26,6 +27,7 @@ namespace PacketEnums
             CONFIG_LOAD,
             CONFIG_REFRESH,
             CONFIG_REMOVE,
+            CHAT_MESSAGE_SENT,
         }
     }
 }

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.serverStopButton = new System.Windows.Forms.Button();
             this.serverStartButton = new System.Windows.Forms.Button();
             this.column_id = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -37,6 +38,7 @@
             this.commandSendButton = new System.Windows.Forms.Button();
             this.LogBox = new System.Windows.Forms.RichTextBox();
             this.commandBox = new System.Windows.Forms.TextBox();
+            this.connectedClientsCheckerTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // serverStopButton
@@ -119,6 +121,12 @@
             this.commandBox.Size = new System.Drawing.Size(532, 20);
             this.commandBox.TabIndex = 10;
             // 
+            // connectedClientsCheckerTimer
+            // 
+            this.connectedClientsCheckerTimer.Enabled = true;
+            this.connectedClientsCheckerTimer.Interval = 300;
+            this.connectedClientsCheckerTimer.Tick += new System.EventHandler(this.connectedClientsCheckerTimer_Tick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -134,7 +142,6 @@
             this.Name = "MainForm";
             this.ShowIcon = false;
             this.Text = "Server";
-            this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
@@ -152,6 +159,7 @@
         private System.Windows.Forms.Button commandSendButton;
         private System.Windows.Forms.RichTextBox LogBox;
         private System.Windows.Forms.TextBox commandBox;
+        internal System.Windows.Forms.Timer connectedClientsCheckerTimer;
     }
 }
 

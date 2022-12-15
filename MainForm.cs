@@ -19,7 +19,7 @@ namespace RogsoftwareServer
             CheckForIllegalCrossThreadCalls = false;
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)   
         {
             Environment.Exit(0);
         }
@@ -59,15 +59,37 @@ namespace RogsoftwareServer
 
         private void serverStopButton_Click(object sender, EventArgs e)
         {
-            Server.Server.ServerSocket.Close();
             Server.Server.ServerSocket.Dispose();
 
-            foreach (Client item in Server.Server.connectedClients)
+            foreach (Client item in Server.Server.connectedClients.ToArray())
             {
-                item.fuckOffThisClient(false);
+                try
+                {
+                    item.disconnect();
+                }
+                catch (Exception exception)
+                {
+                    
+                }
+
+                Globals.removeUser(item.clientID);
+                Server.Server.connectedClients.Remove(item);
             }
 
-            Server.Server.connectedClients.Clear();
+
+            LogBox.Text = "";
+        }
+
+        private void connectedClientsCheckerTimer_Tick(object sender, EventArgs e)
+        {
+            return;
+            foreach (Client item in Server.Server.connectedClients.ToArray())
+            {
+                if (!item.forceCloseThisClient)
+                    continue;
+
+                Server.Server.connectedClients.Remove(item);
+            }
         }
     }
 }

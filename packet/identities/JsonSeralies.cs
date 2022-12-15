@@ -40,7 +40,22 @@ namespace PacketJsonSerializes
                 public int packet_id = 0;
                 public thisZData data = new thisZData();
             }
-            
+
+            public class CHAT_MESSAGE_SENT
+            {
+                public class thisZData
+                {
+                    public int message_id;
+                    public string message_content         = "";
+                    public string message_content_color   = "";
+                    public string message_author          = "";
+                    public string message_author_color    = "";
+                    public string message_date            = "";
+                }
+
+                public int packet_id = 0;
+                public thisZData data = new thisZData();
+            }
         }
     }
 }

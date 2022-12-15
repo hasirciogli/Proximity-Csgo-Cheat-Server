@@ -11,6 +11,8 @@ public class ConsoleLogger
     public void Log(string text)
     {
         RichTextBox KRTB = Application.OpenForms["MainForm"].Controls["LogBox"] as RichTextBox;
-        KRTB.AppendText(text + "\n");
+        KRTB.AppendText(text);
+        KRTB.AppendText("\n");
+        KRTB.AppendText("\n");
     }
 }

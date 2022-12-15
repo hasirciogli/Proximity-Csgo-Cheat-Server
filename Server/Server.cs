@@ -16,9 +16,9 @@ namespace RogsoftwareServer.Server
 
         public static void runServer()
         {
-            ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            ServerSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             ServerSocket.Bind(new IPEndPoint(IPAddress.Any, 6655));
-            ServerSocket.Listen(0);
+            ServerSocket.Listen(-1);
             ServerSocket.BeginAccept(new AsyncCallback(newConnection), null);
 
             if (Globals.loggerConfig.isDebugMode)
@@ -27,21 +27,24 @@ namespace RogsoftwareServer.Server
 
         public static void newConnection(IAsyncResult ar)
         {
-            SocketError err;
             try
             {
+                SocketError err;
                 Socket ts = ServerSocket.EndAccept(ar);
 
-                if (Globals.loggerConfig.isDebugMode)
-                    Globals.LoggerG.Log("New connection from -> " + ts.RemoteEndPoint);
+                if (ts == null || !ts.Connected)
+                    return;
 
                 connectedClients.Add(new Client(ts));  // Create Client ınstande and push the connectedClients list
+
+                ts = null;
 
                 ServerSocket.BeginAccept(new AsyncCallback(newConnection), null);
             }
             catch (Exception e)
             {
-
+                if (Globals.loggerConfig.isDebugMode)
+                    Globals.LoggerG.Log("NewConnecton Ex log" + e.ToString());
                 return;
             }
         }
