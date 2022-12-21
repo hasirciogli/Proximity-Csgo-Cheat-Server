@@ -21,8 +21,8 @@ namespace RogsoftwareServer.Server
             ServerSocket.Listen(-1);
             ServerSocket.BeginAccept(new AsyncCallback(newConnection), null);
 
-            if (Globals.loggerConfig.isDebugMode)
-                Globals.LoggerG.Log("Server Listen Started on -> " + IPAddress.Any + ":" + 6655);
+
+            Globals.LoggerG.Log("Server Listen Started on -> " + IPAddress.Any + ":" + 6655);
         }
 
         public static void newConnection(IAsyncResult ar)
@@ -43,8 +43,6 @@ namespace RogsoftwareServer.Server
             }
             catch (Exception e)
             {
-                if (Globals.loggerConfig.isDebugMode)
-                    Globals.LoggerG.Log("NewConnecton Ex log" + e.ToString());
                 return;
             }
         }

@@ -10,50 +10,29 @@ using Newtonsoft.Json.Linq;
 
 namespace RogsoftwareServer.packet
 {
-    class CPacket
-    {
-        public byte[] data = new byte[8192];
-        public CPacket() 
-        {
-            if (Globals.loggerConfig.isDebugMode)
-                Globals.LoggerG.Log("Packet instance created");
-        }
-    }
-
-    class CPacketHandler
-    {
-        public CPacket _packet;
-
-        public CPacketHandler(byte[] data) 
-        {
-            if (Globals.loggerConfig.isDebugMode)
-                Globals.LoggerG.Log("Packet Handler instance created");
-        }
-    }
-
 
     class CPacketSender
     {
-        public void sendDataTo(Client _client, CPacket paket)
+        public void sendDataTo(Client _client, string data)
         {
-            _client.soket.Send(paket.data, 0, paket.data.Length, SocketFlags.None);
+            _client.sendData(data);
         }
 
-        public void sendDataAll(CPacket paket)
+        public void sendDataAll(string data)
         {
             foreach (var item in Server.Server.connectedClients)
             {
                 if (item.soket.Connected)
-                    item.soket.Send(paket.data, 0, paket.data.Length, SocketFlags.None);
+                    item.sendData(data);
             }
         }
 
-        public void sendDataToOthers(CPacket paket, Client exclude)
+        public void sendDataToOthers(Client exclude, string data)
         {
             foreach (var item in Server.Server.connectedClients)
             {
                 if (item.soket.Connected && item != exclude)
-                    item.soket.Send(paket.data, 0, paket.data.Length, SocketFlags.None);
+                    item.sendData(data);
             }
         }
     }

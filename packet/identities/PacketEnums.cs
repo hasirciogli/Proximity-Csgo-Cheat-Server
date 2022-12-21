@@ -6,12 +6,27 @@ using System.Threading.Tasks;
 
 namespace PacketEnums 
 {
+    namespace LOADER
+    {
+        enum ServerToClient
+        {
+            WHO_ARE_YOU_MOTHERFUCKER,
+        }
+
+        enum ClientToServer
+        {
+            IM_FUCKKING_LOADER,
+            IM_FUCKING_CHEAT
+        }
+    }
+
+
     namespace CHEAT
     {
         enum ServerToClient
         {
-            FIRST_AUTH,
-            USER_AUTH,
+            USER_AUTH_RESPONSE,
+            NEED_USER_AUTH,
             CONFIG_CREATE,
             CONFIG_LOAD,
             CONFIG_REFRESH,
@@ -21,7 +36,6 @@ namespace PacketEnums
 
         enum ClientToServer
         {
-            FIRST_AUTH,
             USER_AUTH,
             CONFIG_CREATE,
             CONFIG_LOAD,

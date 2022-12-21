@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
+using RogsoftwareServer.packet.workers;
 
 namespace RogsoftwareServer
 {
@@ -17,6 +18,7 @@ namespace RogsoftwareServer
             Globals.loggerConfig.isDebugMode = true;
 
             CheckForIllegalCrossThreadCalls = false;
+            serverStopButton.Enabled = false;
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)   
@@ -24,14 +26,11 @@ namespace RogsoftwareServer
             Environment.Exit(0);
         }
 
-        private void CommandSendButton_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void serverStartButton_Click(object sender, EventArgs e)
         {
-            Server.Server.runServer(); 
+            Server.Server.runServer();
+            serverStartButton.Enabled = false;
+            serverStopButton.Enabled = true;
         }
 
         private void commandSendButton_Click_1(object sender, EventArgs e)
@@ -78,6 +77,8 @@ namespace RogsoftwareServer
 
 
             LogBox.Text = "";
+            serverStartButton.Enabled = true;
+            serverStopButton.Enabled = false;
         }
 
         private void connectedClientsCheckerTimer_Tick(object sender, EventArgs e)
@@ -87,9 +88,12 @@ namespace RogsoftwareServer
             {
                 if (!item.forceCloseThisClient)
                     continue;
-
-                Server.Server.connectedClients.Remove(item);
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            LogBox.Text = "";
         }
     }
 }

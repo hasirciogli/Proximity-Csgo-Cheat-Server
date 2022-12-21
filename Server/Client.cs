@@ -13,6 +13,16 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RogsoftwareServer.packet.workers;
+using PacketJsonSerializes.CheatPacketData.serverToClient;
+
+public struct ClientConfig
+{
+    public int userID;
+    public string username;
+    public string userToken;
+    public bool userAuthed;
+}
 
 public class Client
 {
@@ -21,31 +31,28 @@ public class Client
     public readonly int clientID;
     public bool forceCloseThisClient = false;
 
+    public ClientConfig CConfig = new ClientConfig();
+
     public Client(Socket skt)
     {
-        if (Globals.loggerConfig.isDebugMode)
-            Globals.LoggerG.Log("client instance created called");
 
         this.clientID = Server.connectedClients.Count + 1;
-        Globals.addNewUser(this.clientID, "nall", "Bay kemal");
 
         this.runClient(skt);
+
+        new CheatWorker.fromServerToClient().SendNeedAuth(this);
     }
 
     public void runClient(Socket skt)
     {
         this.soket = skt;
 
-        if (Globals.loggerConfig.isDebugMode)
-            Globals.LoggerG.Log("runclient_called");
-
         SocketError RecSocketError;
         this.soket.BeginReceive(this.clientDComet, 0, this.clientDComet.Length, SocketFlags.None, out RecSocketError, newDataComed, null);
         if (RecSocketError != 0)
         {
             // TODO: Disconnect
-            if (Globals.loggerConfig.isDebugMode)
-                Globals.LoggerG.Log("first begin recieve socket error != 0 - called");
+            
             this.disconnect();
             return;
         }
@@ -55,45 +62,44 @@ public class Client
     {
         try
         {
-            if (Globals.loggerConfig.isDebugMode)
-                Globals.LoggerG.Log("new data comed called");
 
             int len = this.soket.EndReceive(ar);
             if (len <= 0)
             {
-                if (Globals.loggerConfig.isDebugMode)
-                    Globals.LoggerG.Log("new data comed len is = <=0");
                 // TODO: Disconnect
                 this.disconnect();
                 return;
             }
             else if (len > 0)
             {
-                if (Globals.loggerConfig.isDebugMode)
-                    Globals.LoggerG.Log("new data len is > 0");
+                CheatPacketHandler cph = new CheatPacketHandler(this, this.clientDComet);
+
+
+                string clientPacketWhoFind = Encoding.UTF8.GetString(this.clientDComet);
+
+                JObject jObj = new JObject();
+
+                try
                 {
-                    if (Globals.loggerConfig.isDebugMode && true)
-                    {
-                        CheatPacketHandler cph = new CheatPacketHandler(this, this.clientDComet);
+                    jObj = JObject.Parse(clientPacketWhoFind);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
 
-                        if (Globals.loggerConfig.isDebugMode)
-                            Globals.LoggerG.Log("new data handle begin");
+                string who_i_am = jObj.SelectToken("who_i_am").ToString();
 
-                        if (!cph.Handle())
-                            this.disconnect();
-
-                        if (Globals.loggerConfig.isDebugMode)
-                            Globals.LoggerG.Log("new data handle end");
-
-
-                        //Globals.LoggerG.Log(pData);
-
-                        //Globals.LoggerG.Log("Data received -> " + pData + " ;(END)"); Globals.LoggerG.Log("");
-                    }
-                    else
-                    {
-                        Globals.LoggerG.Log("BBK DATA = " + Encoding.UTF8.GetString(this.clientDComet).ToString());
-                    }
+                if (who_i_am == "cheat")
+                {
+                    if (!cph.HandleCheat())
+                        this.disconnect();
+                }
+                else if (who_i_am == "loader")
+                {
+                    if (!cph.HandleLoader())
+                        this.disconnect();
                 }
 
 
@@ -104,8 +110,6 @@ public class Client
 
                 if (RecSocketError != 0)
                 {
-                    if (Globals.loggerConfig.isDebugMode)
-                        Globals.LoggerG.Log("new data beginrecieve error != 0 - called");
                     // TODO: Disconnect
                     this.disconnect();
 
@@ -114,8 +118,6 @@ public class Client
             }
             else
             {
-                if (Globals.loggerConfig.isDebugMode)
-                    Globals.LoggerG.Log("new data last else called");
                 this.disconnect();
                 // TODO: Disconnect
                 return;
@@ -123,8 +125,6 @@ public class Client
         }
         catch (Exception e)
         {
-            if (Globals.loggerConfig.isDebugMode)
-                Globals.LoggerG.Log("newDataComed exception - called");
 
             this.disconnect();
             // TODO: Disconnect
@@ -170,7 +170,17 @@ public class Client
 
         }
 
-
+        try
+        {
+            //RogsoftwareServer.Server.Server.connectedClients.Remove(this);
+            if (this.CConfig.userAuthed)
+                Globals.removeUser(this.clientID);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
 

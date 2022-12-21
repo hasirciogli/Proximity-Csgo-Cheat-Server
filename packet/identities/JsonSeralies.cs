@@ -18,23 +18,20 @@ namespace PacketJsonSerializes
 
             public class CheatLoginPacketData
             {
-                public string userHWID;
+                public string hwid;
             }
         }
 
         namespace serverToClient
         {
-            public class ServerFirstAuthPacketData
-            {
-                
-            }
-
-            public class ServerLoginPacketData
+            public class UserAuth
             {
                 public class thisZData
                 {
                     public bool isSuccess = false;
                     public string token = "";
+                    public string username = "";
+                    public string subs_till = "";
                 }
 
                 public int packet_id = 0;
@@ -43,14 +40,39 @@ namespace PacketJsonSerializes
 
             public class CHAT_MESSAGE_SENT
             {
+                public class thizCData
+                {
+                    public thizCData(float x, float y, float z)
+                    {
+                        this.x = x;
+                        this.y = y;
+                        this.z = z;
+                    }
+                    public thizCData()
+                    {
+
+                    }
+                    public float x, y, z;
+                }
                 public class thisZData
                 {
                     public int message_id;
                     public string message_content         = "";
-                    public string message_content_color   = "";
+                    public thizCData message_content_color;
                     public string message_author          = "";
-                    public string message_author_color    = "";
+                    public thizCData message_author_color;
                     public string message_date            = "";
+                }
+
+                public int packet_id = 0;
+                public thisZData data = new thisZData();
+            }
+
+            public class NEED_AUTH
+            {
+                public class thisZData  
+                {
+
                 }
 
                 public int packet_id = 0;

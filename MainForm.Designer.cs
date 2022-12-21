@@ -39,11 +39,12 @@
             this.LogBox = new System.Windows.Forms.RichTextBox();
             this.commandBox = new System.Windows.Forms.TextBox();
             this.connectedClientsCheckerTimer = new System.Windows.Forms.Timer(this.components);
+            this.clearLogBoxButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // serverStopButton
             // 
-            this.serverStopButton.Location = new System.Drawing.Point(1110, 459);
+            this.serverStopButton.Location = new System.Drawing.Point(1110, 456);
             this.serverStopButton.Name = "serverStopButton";
             this.serverStopButton.Size = new System.Drawing.Size(75, 29);
             this.serverStopButton.TabIndex = 6;
@@ -53,7 +54,7 @@
             // 
             // serverStartButton
             // 
-            this.serverStartButton.Location = new System.Drawing.Point(1029, 459);
+            this.serverStartButton.Location = new System.Drawing.Point(1029, 456);
             this.serverStartButton.Name = "serverStartButton";
             this.serverStartButton.Size = new System.Drawing.Size(75, 29);
             this.serverStartButton.TabIndex = 7;
@@ -127,11 +128,22 @@
             this.connectedClientsCheckerTimer.Interval = 300;
             this.connectedClientsCheckerTimer.Tick += new System.EventHandler(this.connectedClientsCheckerTimer_Tick);
             // 
+            // clearLogBoxButton
+            // 
+            this.clearLogBoxButton.Location = new System.Drawing.Point(651, 456);
+            this.clearLogBoxButton.Name = "clearLogBoxButton";
+            this.clearLogBoxButton.Size = new System.Drawing.Size(96, 29);
+            this.clearLogBoxButton.TabIndex = 11;
+            this.clearLogBoxButton.Text = "Clear All Logs";
+            this.clearLogBoxButton.UseVisualStyleBackColor = true;
+            this.clearLogBoxButton.Click += new System.EventHandler(this.button1_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1197, 494);
+            this.Controls.Add(this.clearLogBoxButton);
             this.Controls.Add(this.commandBox);
             this.Controls.Add(this.LogBox);
             this.Controls.Add(this.commandSendButton);
@@ -160,6 +172,7 @@
         private System.Windows.Forms.RichTextBox LogBox;
         private System.Windows.Forms.TextBox commandBox;
         internal System.Windows.Forms.Timer connectedClientsCheckerTimer;
+        private System.Windows.Forms.Button clearLogBoxButton;
     }
 }
 

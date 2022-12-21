@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using PacketEnums;
 
 namespace RogsoftwareServer.packet.handlers
@@ -14,33 +15,108 @@ namespace RogsoftwareServer.packet.handlers
         public byte[] cphData = new byte[8192];
         public Client client;
 
-        public CheatPacketHandler(Client _cl, byte[] data) 
+        public CheatPacketHandler(Client _cl, byte[] data)
         {
             this.cphData = data;
-            this.client    = _cl;
+            this.client = _cl;
         }
 
-        public bool Handle()
+        public bool HandleCheat()
         {
-
-
             try
             {
-
                 string bbgjk = Encoding.UTF8.GetString(this.cphData);
-
 
                 JObject obj = new JObject();
                 int packetID;
-                obj = JObject.Parse(bbgjk);
+
+                try
+                {
+                    obj = JObject.Parse(bbgjk);
+                }
+                catch (JsonException e)
+                {
+                    //Globals.LoggerG.Log(e.ToString());
+                    return false;
+                }
+                
                 packetID = Convert.ToInt32(obj.SelectToken("packet_id"));
 
+                if ((!this.client.CConfig.userAuthed || this.client.CConfig.userToken == "") && packetID != (int)PacketEnums.CHEAT.ClientToServer.USER_AUTH)
+                {
+                    new workers.CheatWorker.fromServerToClient().SendNeedAuth(this.client);
+                    return true;
+                }
+
+                switch ((PacketEnums.CHEAT.ClientToServer)packetID)
+                {
+                    case PacketEnums.CHEAT.ClientToServer.USER_AUTH:
+                        bool uAResponse = new workers.CheatWorker.fromClientToServer().UserAuth(this.client, this.cphData);
+                        if (uAResponse)
+                        {
+                            Globals.addNewUser(this.client.CConfig.userID, this.client.CConfig.username, "steam id is null...");
+                        }
+                        else
+                            return false;
+
+                        break;
+
+
+                    case PacketEnums.CHEAT.ClientToServer.CHAT_MESSAGE_SENT:
+                        bool cMSResponse = new workers.CheatWorker.fromClientToServer().ChatMessageSent(this.client, this.cphData);
+                        if (cMSResponse)
+                        {
+
+                        }
+                        else
+                            return false;
+                        break;
+
+
+
+
+                    default:
+                        return false;
+                        break;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                //if (Globals.loggerConfig.isDebugMode)
+                //    Globals.LoggerG.Log("handle object exception");
+
+                return false;
+            }
+            return true;
+        }
+
+        public bool HandleLoader()
+        {
+            try
+            {
+                string bbgjk = Encoding.UTF8.GetString(this.cphData);
+
+                JObject obj = new JObject();
+                int packetID;
+
+                try
+                {
+                    obj = JObject.Parse(bbgjk);
+                }
+                catch (JsonException e)
+                {
+                    //Globals.LoggerG.Log(e.ToString());
+                    return false;
+                }
+
+                packetID = Convert.ToInt32(obj.SelectToken("packet_id"));
 
                 switch ((PacketEnums.CHEAT.ClientToServer)packetID)
                 {
                     case PacketEnums.CHEAT.ClientToServer.USER_AUTH:
                         if (!new workers.CheatWorker.fromClientToServer().UserAuth(this.client, this.cphData))
-                        {   
+                        {
 
                         }
 
@@ -50,21 +126,22 @@ namespace RogsoftwareServer.packet.handlers
                         {
 
                         }
-
+                        break;
+                    default:
+                        return false;
                         break;
                 }
 
             }
             catch (Exception ex)
             {
-                if (Globals.loggerConfig.isDebugMode)
-                    Globals.LoggerG.Log("handle object exception");
-                //return false;
+                //if (Globals.loggerConfig.isDebugMode)
+                //      Globals.LoggerG.Log("handle object exception");
+
+                return false;
             }
-
-            Globals.LoggerG.Log("data is -> " + Encoding.UTF8.GetString(this.cphData));
-
             return true;
         }
+
     }
 }
