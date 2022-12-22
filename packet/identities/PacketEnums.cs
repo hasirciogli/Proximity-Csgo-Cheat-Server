@@ -10,13 +10,15 @@ namespace PacketEnums
     {
         enum ServerToClient
         {
-            WHO_ARE_YOU_MOTHERFUCKER,
+            USER_AUTH_RESPONSE,
+            HWID_AUTH_REPONSE,
+            CHEAT_RESPONSE
         }
 
         enum ClientToServer
         {
-            IM_FUCKKING_LOADER,
-            IM_FUCKING_CHEAT
+            USER_AUTH,
+            HWID_AUTH,
         }
     }
 

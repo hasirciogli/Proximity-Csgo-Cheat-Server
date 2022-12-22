@@ -112,7 +112,7 @@ namespace RogsoftwareServer.packet.handlers
 
                 packetID = Convert.ToInt32(obj.SelectToken("packet_id"));
 
-                switch ((PacketEnums.CHEAT.ClientToServer)packetID)
+                switch ((PacketEnums.LOADER.ClientToServer)packetID)
                 {
                     case PacketEnums.CHEAT.ClientToServer.USER_AUTH:
                         if (!new workers.CheatWorker.fromClientToServer().UserAuth(this.client, this.cphData))

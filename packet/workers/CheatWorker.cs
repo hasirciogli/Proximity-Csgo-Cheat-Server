@@ -313,4 +313,18 @@ namespace RogsoftwareServer.packet.workers
             }
         }
     }
+
+
+
+
+
+
+
+    public class LoaderWorker
+    {
+        public class fromClientToServer
+        {
+            public void 
+        }
+    }
 }

@@ -77,6 +77,7 @@ public class Client
 
                 string clientPacketWhoFind = Encoding.UTF8.GetString(this.clientDComet);
 
+                Globals.LoggerG.Log(clientPacketWhoFind);
                 JObject jObj = new JObject();
 
                 try
@@ -88,6 +89,7 @@ public class Client
                     Console.WriteLine(e);
                     throw;
                 }
+
 
                 string who_i_am = jObj.SelectToken("who_i_am").ToString();
 
