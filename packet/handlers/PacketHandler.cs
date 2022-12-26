@@ -1,21 +1,16 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
-using PacketEnums;
 
 namespace RogsoftwareServer.packet.handlers
 {
-    public class CheatPacketHandler
+    public class PacketHandler
     {
         public byte[] cphData = new byte[8192];
         public Client client;
 
-        public CheatPacketHandler(Client _cl, byte[] data)
+        public PacketHandler(Client _cl, byte[] data)
         {
             this.cphData = data;
             this.client = _cl;

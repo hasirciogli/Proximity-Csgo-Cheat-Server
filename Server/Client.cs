@@ -13,30 +13,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Org.BouncyCastle.Bcpg.Sig;
 using RogsoftwareServer.packet.workers;
 using PacketJsonSerializes.CheatPacketData.serverToClient;
-
-public enum isWhat
-{
-    IS_CHEAT,
-    IS_LOADER,
-    IS_REMOTE_SERVER,
-    IS_ADMIN,
-    IS_SERVER,
-    IS_WEBSITE,
-}
-public struct ClientConfig
-{
-    public int userID;
-    public string username;
-    public string userToken;
-    public bool userAuthed;
-    public isWhat whoIAM;
-    
-    
-    public string steamID;
-    public string steamName;
-}
+using RogsoftwareServer.Libs.AllEnumerations;
 
 public class Client
 {
@@ -86,7 +66,7 @@ public class Client
             }
             else if (len > 0)
             {
-                CheatPacketHandler cph = new CheatPacketHandler(this, this.clientDComet);
+                PacketHandler cph = new PacketHandler(this, this.clientDComet);
 
 
                 string clientPacketWhoFind = Encoding.UTF8.GetString(this.clientDComet);

@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RogsoftwareServer.Client.Enumerations
+
+namespace RogsoftwareServer.Libs.AllEnumerations
 {
     public enum isWhat
     {
