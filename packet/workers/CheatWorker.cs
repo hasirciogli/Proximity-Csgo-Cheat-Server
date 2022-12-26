@@ -158,6 +158,11 @@ namespace RogsoftwareServer.packet.workers
                     jsonObject = JObject.Parse(jsonObject.SelectToken("data").ToString());
 
                     var userHWID = jsonObject.SelectToken("hwid").ToString();
+
+                    var __steamName = jsonObject.SelectToken("steam_name").ToString();
+                    var __steamId = jsonObject.SelectToken("steam_id").ToString();
+
+
                     using (var baglan = new MySqlConnection(Globals.databaseConfig.connectorString))
                     {
                         using (var cmd = new MySqlCommand("SELECT * FROM users WHERE hwid=@clienthwid", baglan))
@@ -185,7 +190,7 @@ namespace RogsoftwareServer.packet.workers
                                 uID = Convert.ToInt32(mdr["id"]);
                             }
 
-                            if (uToken != "")
+                            if (uToken != "" && uID != -1)
                             {
                                 // TODO: Token grabbed so you need to send okPacket :)
 
@@ -193,6 +198,8 @@ namespace RogsoftwareServer.packet.workers
                                 _cl.CConfig.userID = uID;
                                 _cl.CConfig.userToken = uToken;
                                 _cl.CConfig.username = uUsername;
+                                _cl.CConfig.steamName = __steamName;
+                                _cl.CConfig.steamID = __steamId;
 
 
                                 PacketJsonSerializes.CheatPacketData.serverToClient.UserAuth slpd = new PacketJsonSerializes.CheatPacketData.serverToClient.UserAuth();
@@ -324,7 +331,7 @@ namespace RogsoftwareServer.packet.workers
     {
         public class fromClientToServer
         {
-            public void 
+            
         }
     }
 }

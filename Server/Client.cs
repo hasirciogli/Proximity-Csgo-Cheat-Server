@@ -16,12 +16,26 @@ using System.Threading.Tasks;
 using RogsoftwareServer.packet.workers;
 using PacketJsonSerializes.CheatPacketData.serverToClient;
 
+public enum isWhat
+{
+    IS_CHEAT,
+    IS_LOADER,
+    IS_REMOTE_SERVER,
+    IS_ADMIN,
+    IS_SERVER,
+    IS_WEBSITE,
+}
 public struct ClientConfig
 {
     public int userID;
     public string username;
     public string userToken;
     public bool userAuthed;
+    public isWhat whoIAM;
+    
+    
+    public string steamID;
+    public string steamName;
 }
 
 public class Client
@@ -36,7 +50,7 @@ public class Client
     public Client(Socket skt)
     {
 
-        this.clientID = Server.connectedClients.Count + 1;
+        this.clientID = Server.connectedClients.Count;
 
         this.runClient(skt);
 
@@ -87,7 +101,8 @@ public class Client
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    throw;
+                    this.disconnect();
+                    return;
                 }
 
 
@@ -95,11 +110,13 @@ public class Client
 
                 if (who_i_am == "cheat")
                 {
+                    this.CConfig.whoIAM = isWhat.IS_CHEAT;
                     if (!cph.HandleCheat())
                         this.disconnect();
                 }
                 else if (who_i_am == "loader")
                 {
+                    this.CConfig.whoIAM = isWhat.IS_LOADER;
                     if (!cph.HandleLoader())
                         this.disconnect();
                 }
@@ -175,8 +192,7 @@ public class Client
         try
         {
             //RogsoftwareServer.Server.Server.connectedClients.Remove(this);
-            if (this.CConfig.userAuthed)
-                Globals.removeUser(this.clientID);
+            Globals.removeUser(this.clientID);
         }
         catch (Exception e)
         {

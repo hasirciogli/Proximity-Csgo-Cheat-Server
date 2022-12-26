@@ -40,6 +40,8 @@
             this.commandBox = new System.Windows.Forms.TextBox();
             this.connectedClientsCheckerTimer = new System.Windows.Forms.Timer(this.components);
             this.clearLogBoxButton = new System.Windows.Forms.Button();
+            this.column_userUID = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.column_steam_name = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.SuspendLayout();
             // 
             // serverStopButton
@@ -83,10 +85,12 @@
             // 
             this.usersListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.column_id,
+            this.column_userUID,
             this.column_username,
-            this.column_steam_id});
+            this.column_steam_id,
+            this.column_steam_name});
             this.usersListView.HideSelection = false;
-            this.usersListView.Location = new System.Drawing.Point(652, 13);
+            this.usersListView.Location = new System.Drawing.Point(652, 12);
             this.usersListView.Name = "usersListView";
             this.usersListView.Size = new System.Drawing.Size(533, 437);
             this.usersListView.TabIndex = 5;
@@ -138,6 +142,15 @@
             this.clearLogBoxButton.UseVisualStyleBackColor = true;
             this.clearLogBoxButton.Click += new System.EventHandler(this.button1_Click);
             // 
+            // column_userUID
+            // 
+            this.column_userUID.Text = "UID";
+            // 
+            // column_steam_name
+            // 
+            this.column_steam_name.Text = "Steam Name";
+            this.column_steam_name.Width = 160;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -173,6 +186,8 @@
         private System.Windows.Forms.TextBox commandBox;
         internal System.Windows.Forms.Timer connectedClientsCheckerTimer;
         private System.Windows.Forms.Button clearLogBoxButton;
+        private System.Windows.Forms.ColumnHeader column_userUID;
+        private System.Windows.Forms.ColumnHeader column_steam_name;
     }
 }
 

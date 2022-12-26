@@ -52,9 +52,10 @@ namespace RogsoftwareServer.packet.handlers
                 {
                     case PacketEnums.CHEAT.ClientToServer.USER_AUTH:
                         bool uAResponse = new workers.CheatWorker.fromClientToServer().UserAuth(this.client, this.cphData);
+
                         if (uAResponse)
                         {
-                            Globals.addNewUser(this.client.CConfig.userID, this.client.CConfig.username, "steam id is null...");
+                            Globals.addNewUser(this.client.clientID, this.client.CConfig.userID.ToString(), this.client.CConfig.username, this.client.CConfig.steamID, this.client.CConfig.steamName);
                         }
                         else
                             return false;
@@ -112,25 +113,25 @@ namespace RogsoftwareServer.packet.handlers
 
                 packetID = Convert.ToInt32(obj.SelectToken("packet_id"));
 
-                switch ((PacketEnums.LOADER.ClientToServer)packetID)
-                {
-                    case PacketEnums.CHEAT.ClientToServer.USER_AUTH:
-                        if (!new workers.CheatWorker.fromClientToServer().UserAuth(this.client, this.cphData))
-                        {
+                //switch ((PacketEnums.LOADER.ClientToServer)packetID)
+                //{
+                //    case PacketEnums.CHEAT.ClientToServer.USER_AUTH:
+                //        if (!new workers.CheatWorker.fromClientToServer().UserAuth(this.client, this.cphData))
+                //        {
 
-                        }
+                //        }
 
-                        break;
-                    case PacketEnums.CHEAT.ClientToServer.CHAT_MESSAGE_SENT:
-                        if (!new workers.CheatWorker.fromClientToServer().ChatMessageSent(this.client, this.cphData))
-                        {
+                //        break;
+                //    case PacketEnums.CHEAT.ClientToServer.CHAT_MESSAGE_SENT:
+                //        if (!new workers.CheatWorker.fromClientToServer().ChatMessageSent(this.client, this.cphData))
+                //        {
 
-                        }
-                        break;
-                    default:
-                        return false;
-                        break;
-                }
+                //        }
+                //        break;
+                //    default:
+                //        return false;
+                //        break;
+                //}
 
             }
             catch (Exception ex)

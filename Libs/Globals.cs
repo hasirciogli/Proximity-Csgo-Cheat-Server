@@ -9,7 +9,7 @@ public static class Globals
 {
     public static ConsoleLogger LoggerG = new ConsoleLogger();
 
-    public static void addNewUser(int ID, string username, string stemID)
+    public static void addNewUser(int ID, string userID, string username, string steamId, string steamName)
     {
         ListView usersListView = Application.OpenForms["MainForm"].Controls["usersListView"] as ListView;
 
@@ -17,8 +17,10 @@ public static class Globals
         ListViewItem lvi = new ListViewItem();
         lvi.Text = ID.ToString();
 
+        lvi.SubItems.Add(userID);
         lvi.SubItems.Add(username);
-        lvi.SubItems.Add(stemID);
+        lvi.SubItems.Add(steamId);
+        lvi.SubItems.Add(steamName);
 
         usersListView.Items.Add(lvi);
     }

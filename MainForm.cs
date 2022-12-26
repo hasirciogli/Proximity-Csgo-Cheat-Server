@@ -38,14 +38,12 @@ namespace RogsoftwareServer
 
             //Globals.LoggerG.Log("HOT RELOAD WORK :)");
             //return;
-            
-            Server.Server.connectedClients.ForEach((item) =>
-            {
-                byte[] b = new byte[8192];
-                b = Encoding.UTF8.GetBytes(commandBox.Text);
 
-                item.soket.Send(b, 0, b.Length,SocketFlags.None);
-            });
+            commandSendButton.Enabled = false;
+
+            new PromtCommands().run(commandBox.Text);
+            commandBox.Text = "";
+            commandSendButton.Enabled = true;
         }
 
         private void LogBox_TextChanged(object sender, EventArgs e)
@@ -60,7 +58,7 @@ namespace RogsoftwareServer
         {
             Server.Server.ServerSocket.Dispose();
 
-            foreach (Client item in Server.Server.connectedClients.ToArray())
+            foreach (Client item in Server.Server.connectedClients)
             {
                 try
                 {
@@ -68,12 +66,13 @@ namespace RogsoftwareServer
                 }
                 catch (Exception exception)
                 {
-                    
+                    item.disconnect();
                 }
 
                 Globals.removeUser(item.clientID);
-                Server.Server.connectedClients.Remove(item);
             }
+
+            Server.Server.connectedClients.Clear();
 
 
             LogBox.Text = "";
