@@ -39,7 +39,7 @@ namespace RogsoftwareServer.packet.handlers
                     //Globals.LoggerG.Log(e.ToString());
                     return false;
                 }
-                
+
                 packetID = Convert.ToInt32(obj.SelectToken("packet_id"));
 
                 if ((!this.client.CConfig.userAuthed || this.client.CConfig.userToken == "") && packetID != (int)PacketEnums.CHEAT.ClientToServer.USER_AUTH)

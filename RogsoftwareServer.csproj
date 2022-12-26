@@ -111,8 +111,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Libs\AllEnumerations.cs" />
     <Compile Include="Libs\Database.cs" />
     <Compile Include="Libs\PromtCommands.cs" />
+    <Compile Include="Libs\xorCrypter.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -121,7 +123,7 @@
     </Compile>
     <Compile Include="Libs\ConsoleLogger.cs" />
     <Compile Include="Libs\Globals.cs" />
-    <Compile Include="packet\handlers\CheatPacketHandler.cs" />
+    <Compile Include="packet\handlers\PacketHandler.cs" />
     <Compile Include="packet\identities\JsonSeralies.cs" />
     <Compile Include="packet\identities\PacketEnums.cs" />
     <Compile Include="packet\Packet.cs" />
