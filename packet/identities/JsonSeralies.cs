@@ -54,6 +54,7 @@ namespace PacketJsonSerializes
                     }
                     public float x, y, z;
                 }
+
                 public class thisZData
                 {
                     public int message_id;
@@ -66,6 +67,34 @@ namespace PacketJsonSerializes
 
                 public int packet_id = 0;
                 public thisZData data = new thisZData();
+            }
+
+            public class CONFIG_CREATE
+            {
+                public class thisZData
+                {
+                    public int config_id;
+                    public int config_author;
+                    public string config_name;
+                    public string config_date;
+                }
+
+                public int packet_id = 0;
+                public thisZData data;
+            }
+
+            public class CONFIG_REFRESH
+            {
+                public class thisZData
+                {
+                    public int config_id;
+                    public int config_author;
+                    public string config_name;
+                    public string config_date;
+                }
+
+                public int packet_id = 0;
+                public thisZData[] data;
             }
 
             public class NEED_AUTH

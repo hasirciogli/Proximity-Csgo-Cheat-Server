@@ -58,8 +58,19 @@ namespace RogsoftwareServer.packet.handlers
                         break;
 
 
-                    case PacketEnums.CHEAT.ClientToServer.CHAT_MESSAGE_SENT:
-                        bool cMSResponse = new workers.CheatWorker.fromClientToServer().ChatMessageSent(this.client, this.cphData);
+                    case PacketEnums.CHEAT.ClientToServer.CONFIG_CREATE:
+                        bool cMSResponse = new workers.CheatWorker.fromClientToServer().ConfigCreate(this.client, this.cphData);
+                        if (cMSResponse)
+                        {
+
+                        }
+                        else
+                            return false;
+                        break;
+
+
+                    case PacketEnums.CHEAT.ClientToServer.CONFIG_REFRESH:
+                        bool cMSResponse = new workers.CheatWorker.fromClientToServer().ConfigRefresh(this.client, this.cphData);
                         if (cMSResponse)
                         {
 

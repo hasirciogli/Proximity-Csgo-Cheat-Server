@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Asn1.Cms;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 using PacketJsonSerializes.CheatPacketData.serverToClient;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace RogsoftwareServer.packet.workers
 {
@@ -46,12 +47,7 @@ namespace RogsoftwareServer.packet.workers
                     {
                         // ReSharper disable once ReplaceWithSingleAssignment.False
 
-                        bool temp__isSubscribed = false;
-
-                        if (mdr["subscriptions"].ToString().Split(',').Contains(_cl.CConfig.userID.ToString()))
-                            temp__isSubscribed = true;
-
-                        if (Convert.ToInt32(mdr["owner_id"]) != _cl.CConfig.userID && !temp__isSubscribed)
+                        if (Convert.ToInt32(mdr["owner_id"]) != _cl.CConfig.userID)
                             continue;
 
                         if (!string.IsNullOrEmpty(mdr["token"].ToString()))
@@ -63,7 +59,7 @@ namespace RogsoftwareServer.packet.workers
                             temp_ucfg.data = mdr["data"].ToString();
                             temp_ucfg.udate = mdr["updated_at"].ToString();
                             temp_ucfg.cdate = mdr["created_at"].ToString();
-                            temp_ucfg.isSubscribed = temp__isSubscribed;
+                            temp_ucfg.isSubscribed = Convert.ToBoolean(mdr["is_subscribed"]);
                             uConfigs.Append(temp_ucfg);
                         }
                     }
@@ -78,14 +74,39 @@ namespace RogsoftwareServer.packet.workers
         {
             c_userConfig_t[] cfgs = this.getUserConfigs(_cl);
             c_userConfig_t rCfg = new c_userConfig_t();
+            
+            rCfg.id = -1;
 
             foreach (var item in cfgs)
             {
                 if (item.id == cfgID)
-                    rCfg = item;
+                    return rCfg;
             }
 
             return rCfg;
+        }
+
+        public c_userConfig_t createNewConfig(int uid)
+        {
+            using (var baglan = new MySqlConnection(Globals.databaseConfig.connectorString))
+            {
+                using (var cmd = new MySqlCommand("INSERT INTO configs (owner_id, name, data, is_subscribed) VALUES ('"+uid+"', 'New Config', '{}', '1')", baglan))
+                {
+                    //cmd.Parameters.AddWithValue("@ownerID", uid >= 0 ? uid : this.userID);
+                    cmd.Connection.Open();
+                    MySqlDataReader mdr = cmd.ExecuteReader();
+
+                    c_userConfig_t uConfig = new c_userConfig_t();
+                    uConfig.data = "";
+                    uConfig.cdate = DateTime.Now.ToString();
+                    uConfig.id = (int)cmd.LastInsertedId;
+                    uConfig.isSubscribed = false;
+                    uConfig.owner_id = uid;
+                    uConfig.name = "New Config";
+
+                    return uConfig;
+                }
+            }
         }
 
         public class fromClientToServer
@@ -246,7 +267,6 @@ namespace RogsoftwareServer.packet.workers
 
                 return false;
             }
-
             public bool ChatMessageSent(Client _cl, byte[] fullData)
             {
                 try
@@ -263,8 +283,8 @@ namespace RogsoftwareServer.packet.workers
 
                     jsonObject = JObject.Parse(jsonObject.SelectToken("data").ToString());
 
-                    string author   = _cl.CConfig.username;
-                    string content  = (string)jsonObject.SelectToken("message_content").ToString();
+                    string author = _cl.CConfig.username;
+                    string content = (string)jsonObject.SelectToken("message_content").ToString();
 
                     PacketJsonSerializes.CheatPacketData.serverToClient.CHAT_MESSAGE_SENT cms = new PacketJsonSerializes.CheatPacketData.serverToClient.CHAT_MESSAGE_SENT();
 
@@ -284,11 +304,85 @@ namespace RogsoftwareServer.packet.workers
 
                     Server.Server.connectedClients.ForEach((item) =>
                     {
-                        if(item.soket != null) 
-                            if(item.soket.Connected)
+                        if (item.soket != null)
+                            if (item.soket.Connected)
                                 item.sendData(tjo);
                     });
 
+
+                    return true;
+                }
+                catch (Exception e)
+                {
+
+                    return false;
+                }
+
+                return false;
+            }
+            public bool ConfigCreate(Client _cl, byte[] fullData)
+            {
+                try
+                {
+
+                    c_userConfig_t cConfig = new CheatWorker().createNewConfig(_cl.CConfig.userID);
+                    
+                    PacketJsonSerializes.CheatPacketData.serverToClient.CONFIG_CREATE cc = new PacketJsonSerializes.CheatPacketData.serverToClient.CONFIG_CREATE();
+
+                    cc.data.config_author = cConfig.owner_id;
+                    cc.data.config_date = cConfig.cdate;
+                    cc.data.config_id = cConfig.id;
+                    cc.data.config_name = cConfig.name;
+
+                    string tjo = JsonConvert.SerializeObject(cc);
+
+                    if (_cl.soket != null)
+                        if (_cl.soket.Connected)
+                            _cl.sendData(tjo);
+
+                    return true;
+                }
+                catch (Exception e)
+                {
+
+                    return false;
+                }
+
+                return false;
+            }
+            
+            
+            public bool ConfigRefresh(Client _cl, byte[] fullData)
+            {
+                try
+                {
+
+                    c_userConfig_t cConfig = new CheatWorker().createNewConfig(_cl.CConfig.userID);
+
+                    CONFIG_REFRESH cR = new CONFIG_REFRESH();
+
+
+                    foreach (var item in new CheatWorker().getUserConfigs(_cl, _cl.CConfig.userID))
+                    {
+                        CONFIG_REFRESH.thisZData crtd = new CONFIG_REFRESH.thisZData();
+                        crtd.config_author = cConfig.owner_id;
+                        crtd.config_date = cConfig.cdate;
+                        crtd.config_id = cConfig.id;
+                        crtd.config_name = cConfig.name;
+
+                        cR.data.Append(crtd);
+                    }
+
+                    string tjo = JsonConvert.SerializeObject(cR);
+
+                    MessageBox.Show(tjo);
+
+                    return true;
+
+
+                    if (_cl.soket != null)
+                        if (_cl.soket.Connected)
+                            _cl.sendData(tjo);
 
                     return true;
                 }
