@@ -23,8 +23,6 @@ public class PromtCommands
         {
             if (item.soket != null && item.soket.Connected && item.CConfig.userAuthed && item.CConfig.whoIAM == isWhat.IS_CHEAT && item.CConfig.userAuthed)
             {
-
-
                 PacketJsonSerializes.CheatPacketData.serverToClient.CHAT_MESSAGE_SENT cms = new PacketJsonSerializes.CheatPacketData.serverToClient.CHAT_MESSAGE_SENT();
 
                 cms.packet_id = (int)PacketEnums.CHEAT.ServerToClient.CHAT_MESSAGE_SENT;

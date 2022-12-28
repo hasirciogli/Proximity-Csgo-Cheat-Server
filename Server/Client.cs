@@ -13,10 +13,13 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Org.BouncyCastle.Bcpg.Sig;
 using RogsoftwareServer.packet.workers;
 using PacketJsonSerializes.CheatPacketData.serverToClient;
 using RogsoftwareServer.Libs.AllEnumerations;
+using System.Xml.Linq;
+using RogsoftwareServer.Libs;
 
 public class Client
 {
@@ -66,9 +69,16 @@ public class Client
             }
             else if (len > 0)
             {
+                ////Decrypt encoded data from client
+                //this.clientDComet = Encoding.UTF8.GetBytes(xorCrypter.openSSL.cfun().crypt(Encoding.UTF8.GetString(this.clientDComet)));
+
+                ////Remove uncatagorized characters..
+                //this.clientDComet = Encoding.UTF8.GetBytes(new StringVerifier().verifyText(Encoding.UTF8.GetString(this.clientDComet), len));
+
+                //Create Packet Handler class and wait other checks
                 PacketHandler cph = new PacketHandler(this, this.clientDComet);
 
-
+                // Get decrypted and catagorized text data from socket byte...
                 string clientPacketWhoFind = Encoding.UTF8.GetString(this.clientDComet);
 
                 Globals.LoggerG.Log(clientPacketWhoFind);
@@ -124,7 +134,6 @@ public class Client
         }
         catch (Exception e)
         {
-
             this.disconnect();
             // TODO: Disconnect
             return;
@@ -168,7 +177,7 @@ public class Client
         {
 
         }
-
+            
         try
         {
             //RogsoftwareServer.Server.Server.connectedClients.Remove(this);
@@ -181,7 +190,6 @@ public class Client
         }
     }
 
-
     public void sendData(byte[] data)
     {
         this.soket.Send(data, 0, data.Length, SocketFlags.None);
@@ -189,8 +197,10 @@ public class Client
 
     public void sendData(string _data)
     {
-        byte[] data = new byte[8192];
-        data = Encoding.UTF8.GetBytes(_data);
+        //_data = xorCrypter.openSSL.cfun().crypt(_data);
+        Globals.LoggerG.Log("SDATA = " + _data);
+
+        byte[] data = Encoding.UTF8.GetBytes(_data);
 
         this.soket.Send(data, 0, data.Length, SocketFlags.None);
     }

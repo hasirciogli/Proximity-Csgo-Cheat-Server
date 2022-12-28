@@ -2,7 +2,9 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Windows.Forms;
+using RogsoftwareServer.Libs;
 using RogsoftwareServer.packet.workers;
+using xorCrypter;
 
 namespace RogsoftwareServer
 {
@@ -19,6 +21,8 @@ namespace RogsoftwareServer
 
             CheckForIllegalCrossThreadCalls = false;
             serverStopButton.Enabled = false;
+
+
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)   
@@ -35,7 +39,6 @@ namespace RogsoftwareServer
 
         private void commandSendButton_Click_1(object sender, EventArgs e)
         {
-
             //Globals.LoggerG.Log("HOT RELOAD WORK :)");
             //return;
 
@@ -75,7 +78,7 @@ namespace RogsoftwareServer
             Server.Server.connectedClients.Clear();
 
 
-            LogBox.Text = "";
+            //LogBox.Text = "";
             serverStartButton.Enabled = true;
             serverStopButton.Enabled = false;
         }

@@ -37,27 +37,14 @@ public static class Globals
         }
     }
 
+
+
+
+
+
+
+
     public static logCFG loggerConfig;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public struct logCFG
     {
         public bool isDebugMode;
