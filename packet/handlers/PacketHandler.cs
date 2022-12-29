@@ -57,10 +57,19 @@ namespace RogsoftwareServer.packet.handlers
 
                         break;
 
+                    case PacketEnums.CHEAT.ClientToServer.CHAT_MESSAGE_SENT:
+                        bool cMSResponse = new workers.CheatWorker.fromClientToServer().ChatMessageSent(this.client, this.cphData);
+                        if (cMSResponse)
+                        {
+
+                        }
+                        else
+                            return false;
+                        break;
 
                     case PacketEnums.CHEAT.ClientToServer.CONFIG_CREATE:
-                        bool cMSResponse = new workers.CheatWorker.fromClientToServer().ConfigCreate(this.client, this.cphData);
-                        if (cMSResponse)
+                        bool cCResponse = new workers.CheatWorker.fromClientToServer().ConfigCreate(this.client, this.cphData);
+                        if (cCResponse)
                         {
 
                         }
@@ -70,8 +79,28 @@ namespace RogsoftwareServer.packet.handlers
 
 
                     case PacketEnums.CHEAT.ClientToServer.CONFIG_REFRESH:
-                        bool cMSResponse = new workers.CheatWorker.fromClientToServer().ConfigRefresh(this.client, this.cphData);
-                        if (cMSResponse)
+                        bool cRResponse = new workers.CheatWorker.fromClientToServer().ConfigRefresh(this.client, this.cphData);
+                        if (cRResponse)
+                        {
+
+                        }
+                        else
+                            return false;
+                        break;
+
+                    case PacketEnums.CHEAT.ClientToServer.CONFIG_LOAD:
+                        bool cLResponse = new workers.CheatWorker.fromClientToServer().ConfigLoad(this.client, this.cphData);
+                        if (cLResponse)
+                        {
+
+                        }
+                        else
+                            return false;
+                        break;
+
+                    case PacketEnums.CHEAT.ClientToServer.CONFIG_SAVE:
+                        bool cSResponse = new workers.CheatWorker.fromClientToServer().ConfigSave(this.client, this.cphData);
+                        if (cSResponse)
                         {
 
                         }

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
@@ -41,27 +42,27 @@ namespace RogsoftwareServer.packet.workers
                     cmd.Connection.Open();
                     MySqlDataReader mdr = cmd.ExecuteReader();
 
-                    c_userConfig_t[] uConfigs = { };
+                    c_userConfig_t[] uConfigs = {};
 
                     while (mdr.Read())
                     {
                         // ReSharper disable once ReplaceWithSingleAssignment.False
-
                         if (Convert.ToInt32(mdr["owner_id"]) != _cl.CConfig.userID)
                             continue;
 
-                        if (!string.IsNullOrEmpty(mdr["token"].ToString()))
-                        {
-                            c_userConfig_t temp_ucfg = new c_userConfig_t();
-                            temp_ucfg.id = Convert.ToInt32(mdr["id"]);
-                            temp_ucfg.owner_id = Convert.ToInt32(mdr["owner_id"]);
-                            temp_ucfg.name = mdr["name"].ToString();
-                            temp_ucfg.data = mdr["data"].ToString();
-                            temp_ucfg.udate = mdr["updated_at"].ToString();
-                            temp_ucfg.cdate = mdr["created_at"].ToString();
-                            temp_ucfg.isSubscribed = Convert.ToBoolean(mdr["is_subscribed"]);
-                            uConfigs.Append(temp_ucfg);
-                        }
+                        c_userConfig_t temp_ucfg = new c_userConfig_t();
+                        temp_ucfg.id = Convert.ToInt32(mdr["id"]);
+                        temp_ucfg.owner_id = Convert.ToInt32(mdr["owner_id"]);
+                        temp_ucfg.owner = _cl.CConfig.username;
+                        temp_ucfg.name = mdr["name"].ToString();
+                        temp_ucfg.data = mdr["data"].ToString();
+                        temp_ucfg.udate = mdr["updated_at"].ToString();
+                        temp_ucfg.cdate = mdr["created_at"].ToString();
+                        temp_ucfg.isSubscribed = Convert.ToBoolean(mdr["is_subscribed"]);
+                        uConfigs.Append<c_userConfig_t>(temp_ucfg);
+
+                        Array.Resize(ref uConfigs, uConfigs.Length + 1);
+                        uConfigs[uConfigs.Length - 1] = temp_ucfg;
                     }
 
                     return uConfigs;
@@ -70,7 +71,7 @@ namespace RogsoftwareServer.packet.workers
 
             return null;
         }
-        public c_userConfig_t getUserConfig(int cfgID, Client _cl)
+        public c_userConfig_t getUserConfig(Client _cl, int cfgID)
         {
             c_userConfig_t[] cfgs = this.getUserConfigs(_cl);
             c_userConfig_t rCfg = new c_userConfig_t();
@@ -80,7 +81,7 @@ namespace RogsoftwareServer.packet.workers
             foreach (var item in cfgs)
             {
                 if (item.id == cfgID)
-                    return rCfg;
+                    return item;
             }
 
             return rCfg;
@@ -90,7 +91,7 @@ namespace RogsoftwareServer.packet.workers
         {
             using (var baglan = new MySqlConnection(Globals.databaseConfig.connectorString))
             {
-                using (var cmd = new MySqlCommand("INSERT INTO configs (owner_id, name, data, is_subscribed) VALUES ('"+uid+"', 'New Config', '{}', '1')", baglan))
+                using (var cmd = new MySqlCommand("INSERT INTO configs (owner_id, name, data, is_subscribed) VALUES ('"+uid+"', 'New Config', '{}', '0')", baglan))
                 {
                     //cmd.Parameters.AddWithValue("@ownerID", uid >= 0 ? uid : this.userID);
                     cmd.Connection.Open();
@@ -194,13 +195,22 @@ namespace RogsoftwareServer.packet.workers
 
                             string uToken = "";
                             string uUsername = "";
+                            string subsTill = "";
                             int uID = -1;
-
                             while (mdr.Read())
                             {
+                                Globals.LoggerG.Log(mdr["token"].ToString());
+
                                 if (!string.IsNullOrEmpty(mdr["token"].ToString()))
                                 {
                                     uToken = mdr["token"].ToString();
+                                    
+                                }
+                                
+                                if (!string.IsNullOrEmpty(mdr["subs_till"].ToString()))
+                                {
+                                    subsTill = mdr["subs_till"].ToString();
+                                    
                                 }
 
                                 if (!string.IsNullOrEmpty(mdr["username"].ToString()))
@@ -230,7 +240,7 @@ namespace RogsoftwareServer.packet.workers
                                 slpd.data.isSuccess = true;
                                 slpd.data.token = uToken;
                                 slpd.data.username = uUsername;
-                                slpd.data.subs_till = "Beta Feature...";
+                                slpd.data.subs_till = subsTill;
 
                                 string tjo = JsonConvert.SerializeObject(slpd);
 
@@ -240,6 +250,7 @@ namespace RogsoftwareServer.packet.workers
                             }
                             else
                             {
+
                                 PacketJsonSerializes.CheatPacketData.serverToClient.UserAuth slpd = new PacketJsonSerializes.CheatPacketData.serverToClient.UserAuth();
 
                                 slpd.packet_id = (int)PacketEnums.CHEAT.ServerToClient.USER_AUTH_RESPONSE;
@@ -252,6 +263,8 @@ namespace RogsoftwareServer.packet.workers
                                 string tjo = JsonConvert.SerializeObject(slpd);
 
                                 _cl.sendData(tjo);
+
+                                //Globals.LoggerG.Log(tjo);
 
 
                                 // TODO: Token isn't grabbed so you need to send okButNoPacket :)
@@ -324,12 +337,15 @@ namespace RogsoftwareServer.packet.workers
             {
                 try
                 {
-
                     c_userConfig_t cConfig = new CheatWorker().createNewConfig(_cl.CConfig.userID);
                     
                     PacketJsonSerializes.CheatPacketData.serverToClient.CONFIG_CREATE cc = new PacketJsonSerializes.CheatPacketData.serverToClient.CONFIG_CREATE();
+                    cc.data = new CONFIG_CREATE.thisZData();
+                    cc.status = true;
 
-                    cc.data.config_author = cConfig.owner_id;
+                    cc.packet_id = (int)PacketEnums.CHEAT.ServerToClient.CONFIG_CREATE_RESPONSE;
+
+                    cc.data.config_author = _cl.CConfig.username;
                     cc.data.config_date = cConfig.cdate;
                     cc.data.config_id = cConfig.id;
                     cc.data.config_name = cConfig.name;
@@ -344,41 +360,30 @@ namespace RogsoftwareServer.packet.workers
                 }
                 catch (Exception e)
                 {
-
                     return false;
                 }
 
                 return false;
             }
-            
-            
-            public bool ConfigRefresh(Client _cl, byte[] fullData)
+            public bool ConfigLoad(Client _cl, byte[] fullData)
             {
                 try
                 {
+                    string workerString = Encoding.UTF8.GetString(fullData);
 
-                    c_userConfig_t cConfig = new CheatWorker().createNewConfig(_cl.CConfig.userID);
+                    JObject jsonObject = JObject.Parse(workerString);
 
-                    CONFIG_REFRESH cR = new CONFIG_REFRESH();
+                    c_userConfig_t cConfig = new CheatWorker().getUserConfig(_cl, jsonObject["data"]["config_id"].ToObject<int>());
 
+                    CONFIG_LOAD cc = new CONFIG_LOAD();
+                    
+                    cc.data.config_data = JObject.Parse(cConfig.data);
+                    cc.data.config_id = cConfig.id;
+                    cc.status = true;
 
-                    foreach (var item in new CheatWorker().getUserConfigs(_cl, _cl.CConfig.userID))
-                    {
-                        CONFIG_REFRESH.thisZData crtd = new CONFIG_REFRESH.thisZData();
-                        crtd.config_author = cConfig.owner_id;
-                        crtd.config_date = cConfig.cdate;
-                        crtd.config_id = cConfig.id;
-                        crtd.config_name = cConfig.name;
+                    cc.packet_id = (int)PacketEnums.CHEAT.ServerToClient.CONFIG_LOAD_RESPONSE;
 
-                        cR.data.Append(crtd);
-                    }
-
-                    string tjo = JsonConvert.SerializeObject(cR);
-
-                    MessageBox.Show(tjo);
-
-                    return true;
-
+                    string tjo = JsonConvert.SerializeObject(cc);
 
                     if (_cl.soket != null)
                         if (_cl.soket.Connected)
@@ -388,7 +393,71 @@ namespace RogsoftwareServer.packet.workers
                 }
                 catch (Exception e)
                 {
+                    return false;
+                }
 
+                return false;
+            }
+            public bool ConfigRefresh(Client _cl, byte[] fullData)
+            {
+                try
+                {
+                    foreach (var item in new CheatWorker().getUserConfigs(_cl, _cl.CConfig.userID))
+                    {
+                        CONFIG_REFRESH cR = new CONFIG_REFRESH();
+
+                        cR.packet_id = (int)PacketEnums.CHEAT.ServerToClient.CONFIG_REFRESH_RESPONSE;
+
+                        cR.data.config_author = item.owner;
+                        cR.data.config_date = item.cdate;
+                        cR.data.config_id = item.id;
+                        cR.data.config_name = item.name;
+
+                        string tjo = JsonConvert.SerializeObject(cR);
+
+                        if (_cl.soket != null)
+                            if (_cl.soket.Connected)
+                                _cl.sendData(tjo);
+
+                        Thread.Sleep(20);
+                    }
+
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.ToString());
+                    return false;
+                }
+
+                return false;
+            }
+            public bool ConfigSave(Client _cl, byte[] fullData)
+            {
+                try
+                {
+                    string workerString = Encoding.UTF8.GetString(fullData);
+
+                    JObject jsonObject = JObject.Parse(workerString);
+
+                    int configId = jsonObject["data"]["config_id"].ToObject<int>();
+                    string configData = jsonObject["data"]["config_data"].ToString();
+
+                    using (var baglan = new MySqlConnection(Globals.databaseConfig.connectorString))
+                    {
+                        using (var cmd = new MySqlCommand("UPDATE configs SET data='"+configData+"' WHERE id='"+configId+"'", baglan))
+                        {
+                            //cmd.Parameters.AddWithValue("@ownerID", uid >= 0 ? uid : this.userID);
+                            cmd.Connection.Open();
+                            MySqlDataReader mdr = cmd.ExecuteReader();
+
+                            return true;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.ToString());
                     return false;
                 }
 

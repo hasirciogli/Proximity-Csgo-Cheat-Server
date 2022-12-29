@@ -20,6 +20,7 @@ using PacketJsonSerializes.CheatPacketData.serverToClient;
 using RogsoftwareServer.Libs.AllEnumerations;
 using System.Xml.Linq;
 using RogsoftwareServer.Libs;
+using Timer = System.Threading.Timer;
 
 public class Client
 {
@@ -27,7 +28,7 @@ public class Client
     public byte[] clientDComet = new byte[8192];
     public readonly int clientID;
     public bool forceCloseThisClient = false;
-
+    public Timer threadTimer;
     public ClientConfig CConfig = new ClientConfig();
 
     public Client(Socket skt)
@@ -38,6 +39,8 @@ public class Client
         this.runClient(skt);
 
         new CheatWorker.fromServerToClient().SendNeedAuth(this);
+
+        //threadTimer = new Timer(sokSendTimer, null, 0, 70);
     }
 
     public void runClient(Socket skt)
@@ -193,6 +196,11 @@ public class Client
     public void sendData(byte[] data)
     {
         this.soket.Send(data, 0, data.Length, SocketFlags.None);
+    }
+
+    public void sokSendTimer(Object o)
+    {
+
     }
 
     public void sendData(string _data)

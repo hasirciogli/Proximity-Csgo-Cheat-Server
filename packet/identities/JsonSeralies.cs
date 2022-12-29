@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace PacketJsonSerializes
 {
@@ -73,28 +74,42 @@ namespace PacketJsonSerializes
             {
                 public class thisZData
                 {
-                    public int config_id;
-                    public int config_author;
-                    public string config_name;
-                    public string config_date;
+                    public int config_id = -2;
+                    public string config_author = "";
+                    public string config_name = "";
+                    public string config_date = "";
                 }
 
                 public int packet_id = 0;
-                public thisZData data;
+                public bool status = false;
+                public thisZData data = new thisZData();
+            }
+
+            public class CONFIG_LOAD
+            {
+                public class thisZData
+                {
+                    public int config_id = -2;
+                    public JObject config_data;
+                }
+
+                public int packet_id = 0;
+                public bool status = false;
+                public thisZData data = new thisZData();
             }
 
             public class CONFIG_REFRESH
             {
                 public class thisZData
                 {
-                    public int config_id;
-                    public int config_author;
-                    public string config_name;
-                    public string config_date;
+                    public int config_id = -2;
+                    public string config_author = "";
+                    public string config_name = "";
+                    public string config_date = "";
                 }
 
                 public int packet_id = 0;
-                public thisZData[] data;
+                public thisZData data = new thisZData();
             }
 
             public class NEED_AUTH
