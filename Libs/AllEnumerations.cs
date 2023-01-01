@@ -23,6 +23,8 @@ namespace RogsoftwareServer.Libs.AllEnumerations
         public string userToken;
         public bool userAuthed;
         public isWhat whoIAM;
+        public bool PoxiAuthStatus;
+
 
 
         public string steamID;

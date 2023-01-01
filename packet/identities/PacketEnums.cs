@@ -27,6 +27,7 @@ namespace PacketEnums
     {
         enum ServerToClient
         {
+            FUN_OK,
             USER_AUTH_RESPONSE,
             NEED_USER_AUTH,
             CONFIG_CREATE_RESPONSE,
@@ -39,6 +40,7 @@ namespace PacketEnums
 
         enum ClientToServer
         {
+            FUN_OK,
             USER_AUTH,
             CONFIG_CREATE,
             CONFIG_LOAD,

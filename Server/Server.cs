@@ -21,7 +21,6 @@ namespace RogsoftwareServer.Server
             ServerSocket.Listen(-1);
             ServerSocket.BeginAccept(new AsyncCallback(newConnection), null);
 
-
             Globals.LoggerG.Log("Server Listen Started on -> " + IPAddress.Any + ":" + 6655);
         }
 

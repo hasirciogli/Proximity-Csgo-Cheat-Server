@@ -1,21 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Odbc;
-using System.Globalization;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Org.BouncyCastle.Asn1.Cms;
-using Org.BouncyCastle.Bcpg.OpenPgp;
 using PacketJsonSerializes.CheatPacketData.serverToClient;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace RogsoftwareServer.packet.workers
 {
@@ -168,6 +158,17 @@ namespace RogsoftwareServer.packet.workers
                     string tjo = JsonConvert.SerializeObject(slpd);
 
                     _cl.sendBuffers.Add(tjo);
+
+                    FUN_OK fo = new FUN_OK();
+
+                    fo.packet_id = (int)PacketEnums.CHEAT.ServerToClient.FUN_OK;
+
+                    string tjoxx = JsonConvert.SerializeObject(fo);
+
+                    if (_cl.soket != null)
+                        if (_cl.soket.Connected)
+                            _cl.sendBuffers.Add(tjoxx);
+
                     return true;
                 }
 
@@ -199,7 +200,6 @@ namespace RogsoftwareServer.packet.workers
                             int uID = -1;
                             while (mdr.Read())
                             {
-                                Globals.LoggerG.Log(mdr["token"].ToString());
 
                                 if (!string.IsNullOrEmpty(mdr["token"].ToString()))
                                 {
@@ -246,6 +246,16 @@ namespace RogsoftwareServer.packet.workers
 
                                 _cl.sendBuffers.Add(tjo);
 
+                                FUN_OK fo = new FUN_OK();
+
+                                fo.packet_id = (int)PacketEnums.CHEAT.ServerToClient.FUN_OK;
+
+                                string tjoxx = JsonConvert.SerializeObject(fo);
+
+                                if (_cl.soket != null)
+                                    if (_cl.soket.Connected)
+                                        _cl.sendBuffers.Add(tjoxx);
+
                                 return true;
                             }
                             else
@@ -265,7 +275,15 @@ namespace RogsoftwareServer.packet.workers
                                 _cl.sendBuffers.Add(tjo);
 
                                 //Globals.LoggerG.Log(tjo);
+                                FUN_OK fo = new FUN_OK();
 
+                                fo.packet_id = (int)PacketEnums.CHEAT.ServerToClient.FUN_OK;
+
+                                string tjoxx = JsonConvert.SerializeObject(fo);
+
+                                if (_cl.soket != null)
+                                    if (_cl.soket.Connected)
+                                        _cl.sendBuffers.Add(tjoxx);
 
                                 // TODO: Token isn't grabbed so you need to send okButNoPacket :)
                                 return false;
@@ -323,6 +341,17 @@ namespace RogsoftwareServer.packet.workers
                     });
 
 
+                    FUN_OK fo = new FUN_OK();
+
+                    fo.packet_id = (int)PacketEnums.CHEAT.ServerToClient.FUN_OK;
+
+                    string tjoxx = JsonConvert.SerializeObject(fo);
+
+                    if (_cl.soket != null)
+                        if (_cl.soket.Connected)
+                            _cl.sendBuffers.Add(tjoxx);
+
+
                     return true;
                 }
                 catch (Exception e)
@@ -355,6 +384,17 @@ namespace RogsoftwareServer.packet.workers
                     if (_cl.soket != null)
                         if (_cl.soket.Connected)
                             _cl.sendBuffers.Add(tjo);
+
+
+                    FUN_OK fo = new FUN_OK();
+
+                    fo.packet_id = (int)PacketEnums.CHEAT.ServerToClient.FUN_OK;
+
+                    string tjoxx = JsonConvert.SerializeObject(fo);
+
+                    if (_cl.soket != null)
+                        if (_cl.soket.Connected)
+                            _cl.sendBuffers.Add(tjoxx);
 
                     return true;
                 }
@@ -389,6 +429,16 @@ namespace RogsoftwareServer.packet.workers
                         if (_cl.soket.Connected)
                             _cl.sendBuffers.Add(tjo);
 
+                    FUN_OK fo = new FUN_OK();
+
+                    fo.packet_id = (int)PacketEnums.CHEAT.ServerToClient.FUN_OK;
+
+                    string tjoxx = JsonConvert.SerializeObject(fo);
+
+                    if (_cl.soket != null)
+                        if (_cl.soket.Connected)
+                            _cl.sendBuffers.Add(tjoxx);
+
                     return true;
                 }
                 catch (Exception e)
@@ -420,6 +470,16 @@ namespace RogsoftwareServer.packet.workers
                                 _cl.sendBuffers.Add(tjo);
                     }
 
+                    FUN_OK fo = new FUN_OK();
+
+                    fo.packet_id = (int)PacketEnums.CHEAT.ServerToClient.FUN_OK;
+
+                    string tjoxx = JsonConvert.SerializeObject(fo);
+
+                    if (_cl.soket != null)
+                        if (_cl.soket.Connected)
+                            _cl.sendBuffers.Add(tjoxx);
+
                     return true;
                 }
                 catch (Exception e)
@@ -443,11 +503,21 @@ namespace RogsoftwareServer.packet.workers
 
                     using (var baglan = new MySqlConnection(Globals.databaseConfig.connectorString))
                     {
-                        using (var cmd = new MySqlCommand("UPDATE configs SET data='"+configData+"' WHERE id='"+configId+"'", baglan))
+                        using (var cmd = new MySqlCommand("UPDATE configs SET data='" + configData + "' WHERE id='" + configId + "'", baglan))
                         {
                             //cmd.Parameters.AddWithValue("@ownerID", uid >= 0 ? uid : this.userID);
                             cmd.Connection.Open();
                             MySqlDataReader mdr = cmd.ExecuteReader();
+
+                            FUN_OK fo = new FUN_OK();
+
+                            fo.packet_id = (int)PacketEnums.CHEAT.ServerToClient.FUN_OK;
+
+                            string tjo = JsonConvert.SerializeObject(fo);
+
+                            if (_cl.soket != null)
+                                if (_cl.soket.Connected)
+                                    _cl.sendBuffers.Add(tjo);
 
                             return true;
                         }

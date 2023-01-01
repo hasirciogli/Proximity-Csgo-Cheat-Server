@@ -21,8 +21,6 @@ namespace RogsoftwareServer
 
             CheckForIllegalCrossThreadCalls = false;
             serverStopButton.Enabled = false;
-
-
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)   

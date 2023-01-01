@@ -125,6 +125,7 @@
     <Compile Include="Libs\AllEnumerations.cs" />
     <Compile Include="Libs\Database.cs" />
     <Compile Include="Libs\PromtCommands.cs" />
+    <Compile Include="Libs\ProxiAuth.cs" />
     <Compile Include="Libs\StringVerifier.cs" />
     <Compile Include="Libs\xorCrypter.cs" />
     <Compile Include="MainForm.cs">

@@ -32,16 +32,15 @@ public class Client
     public Timer threadTimer;
     public ClientConfig CConfig = new ClientConfig();
 
+    public bool NeedAuthSented = false;
+
     public List<string> sendBuffers = new List<string>();
     public Client(Socket skt)
     {
-
+        this.CConfig.PoxiAuthStatus = false;
         this.clientID = Server.connectedClients.Count; 
 
         this.runClient(skt);
-
-        new CheatWorker.fromServerToClient().SendNeedAuth(this);
-
         threadTimer = new Timer(sokSendTimer, null, 0, 200);
     }
 
@@ -74,48 +73,79 @@ public class Client
             }
             else if (len > 0)
             {
-                ////Decrypt encoded data from client
-                //this.clientDComet = Encoding.UTF8.GetBytes(xorCrypter.openSSL.cfun().crypt(Encoding.UTF8.GetString(this.clientDComet)));
+                string clientPacketWhoFind2 = Encoding.UTF8.GetString(this.clientDComet);
 
-                ////Remove uncatagorized characters..
-                //this.clientDComet = Encoding.UTF8.GetBytes(new StringVerifier().verifyText(Encoding.UTF8.GetString(this.clientDComet), len));
-
-                //Create Packet Handler class and wait other checks
-                PacketHandler cph = new PacketHandler(this, this.clientDComet);
-
-                // Get decrypted and catagorized text data from socket byte...
-                string clientPacketWhoFind = Encoding.UTF8.GetString(this.clientDComet);
-
-                Globals.LoggerG.Log(clientPacketWhoFind);
-                JObject jObj = new JObject();
-
-                try
+                if (!this.CConfig.PoxiAuthStatus)
                 {
-                    jObj = JObject.Parse(clientPacketWhoFind);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    this.disconnect();
-                    return;
-                }
+                    ProxiAuth pa = new ProxiAuth();
 
 
-                string who_i_am = jObj.SelectToken("who_i_am").ToString();
+                    try
+                    {
+                        if (!pa.AuthProxiClient(clientPacketWhoFind2, this))
+                            disconnect();
+                        else
+                        {
+                            this.CConfig.PoxiAuthStatus = true;
 
-                if (who_i_am == "cheat")
-                {
-                    this.CConfig.whoIAM = isWhat.IS_CHEAT;
-                    if (!cph.HandleCheat())
+                            if (!NeedAuthSented)
+                            {
+                                new CheatWorker.fromServerToClient().SendNeedAuth(this);
+                                NeedAuthSented = true;
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
                         this.disconnect();
-                }
-                else if (who_i_am == "loader")
-                {
-                    this.CConfig.whoIAM = isWhat.IS_LOADER;
-                    if (!cph.HandleLoader())
-                        this.disconnect();
-                }
+                        return;
+                    }
 
+                }
+                else
+                {
+                    ////Decrypt encoded data from client
+                    //this.clientDComet = Encoding.UTF8.GetBytes(xorCrypter.openSSL.cfun().crypt(Encoding.UTF8.GetString(this.clientDComet)));
+
+                    ////Remove uncatagorized characters..
+                    //this.clientDComet = Encoding.UTF8.GetBytes(new StringVerifier().verifyText(Encoding.UTF8.GetString(this.clientDComet), len));
+
+                    //Create Packet Handler class and wait other checks
+                    PacketHandler cph = new PacketHandler(this, this.clientDComet);
+
+                    // Get decrypted and catagorized text data from socket byte...
+                    string clientPacketWhoFind = Encoding.UTF8.GetString(this.clientDComet);
+                    Console.WriteLine(clientPacketWhoFind);
+
+                    JObject jObj = new JObject();
+
+                    try
+                    {
+                        jObj = JObject.Parse(clientPacketWhoFind);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        this.disconnect();
+                        return;
+                    }
+
+
+                    string who_i_am = jObj.SelectToken("who_i_am").ToString();
+
+                    if (who_i_am == "cheat")
+                    {
+                        this.CConfig.whoIAM = isWhat.IS_CHEAT;
+                        if (!cph.HandleCheat())
+                            this.disconnect();
+                    }
+                    else if (who_i_am == "loader")
+                    {
+                        this.CConfig.whoIAM = isWhat.IS_LOADER;
+                        if (!cph.HandleLoader())
+                            this.disconnect();
+                    }
+                }
 
                 this.clientDComet = new byte[8192];
 
@@ -204,6 +234,7 @@ public class Client
     {
         if (sendBuffers.Count > 0)
         {
+            Globals.LoggerG.Log(sendBuffers[0]);
             this.sendData(sendBuffers[0]);
             this.sendBuffers.RemoveAt(0);
         }
@@ -212,7 +243,7 @@ public class Client
     public void sendData(string _data)
     {
         //_data = xorCrypter.openSSL.cfun().crypt(_data);
-        Globals.LoggerG.Log("SDATA = " + _data);
+        //Globals.LoggerG.Log("SDATA = " + _data);
 
         byte[] data = Encoding.UTF8.GetBytes(_data);
 

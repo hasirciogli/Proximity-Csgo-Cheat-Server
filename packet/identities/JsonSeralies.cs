@@ -25,6 +25,10 @@ namespace PacketJsonSerializes
 
         namespace serverToClient
         {
+            public class FUN_OK
+            {
+                public int packet_id = 0;
+            }
             public class UserAuth
             {
                 public class thisZData
