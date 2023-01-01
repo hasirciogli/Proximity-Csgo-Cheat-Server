@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Security.Cryptography;
 
-
 namespace xorCrypter
 {
     public class openSSL

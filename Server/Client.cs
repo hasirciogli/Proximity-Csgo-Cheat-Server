@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Net.WebSockets;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -31,16 +32,17 @@ public class Client
     public Timer threadTimer;
     public ClientConfig CConfig = new ClientConfig();
 
+    public List<string> sendBuffers = new List<string>();
     public Client(Socket skt)
     {
 
-        this.clientID = Server.connectedClients.Count;
+        this.clientID = Server.connectedClients.Count; 
 
         this.runClient(skt);
 
         new CheatWorker.fromServerToClient().SendNeedAuth(this);
 
-        //threadTimer = new Timer(sokSendTimer, null, 0, 70);
+        threadTimer = new Timer(sokSendTimer, null, 0, 200);
     }
 
     public void runClient(Socket skt)
@@ -200,7 +202,11 @@ public class Client
 
     public void sokSendTimer(Object o)
     {
-
+        if (sendBuffers.Count > 0)
+        {
+            this.sendData(sendBuffers[0]);
+            this.sendBuffers.RemoveAt(0);
+        }
     }
 
     public void sendData(string _data)
@@ -210,7 +216,15 @@ public class Client
 
         byte[] data = Encoding.UTF8.GetBytes(_data);
 
-        this.soket.Send(data, 0, data.Length, SocketFlags.None);
+        try
+        {
+            this.soket.Send(data, 0, data.Length, SocketFlags.None);
+        }
+        catch (Exception e)
+        {
+            this.disconnect();
+            return;
+        }
     }
 }
 

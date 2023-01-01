@@ -167,7 +167,7 @@ namespace RogsoftwareServer.packet.workers
 
                     string tjo = JsonConvert.SerializeObject(slpd);
 
-                    _cl.sendData(tjo);
+                    _cl.sendBuffers.Add(tjo);
                     return true;
                 }
 
@@ -244,7 +244,7 @@ namespace RogsoftwareServer.packet.workers
 
                                 string tjo = JsonConvert.SerializeObject(slpd);
 
-                                _cl.sendData(tjo);
+                                _cl.sendBuffers.Add(tjo);
 
                                 return true;
                             }
@@ -262,7 +262,7 @@ namespace RogsoftwareServer.packet.workers
 
                                 string tjo = JsonConvert.SerializeObject(slpd);
 
-                                _cl.sendData(tjo);
+                                _cl.sendBuffers.Add(tjo);
 
                                 //Globals.LoggerG.Log(tjo);
 
@@ -319,7 +319,7 @@ namespace RogsoftwareServer.packet.workers
                     {
                         if (item.soket != null)
                             if (item.soket.Connected)
-                                item.sendData(tjo);
+                                item.sendBuffers.Add(tjo);
                     });
 
 
@@ -354,7 +354,7 @@ namespace RogsoftwareServer.packet.workers
 
                     if (_cl.soket != null)
                         if (_cl.soket.Connected)
-                            _cl.sendData(tjo);
+                            _cl.sendBuffers.Add(tjo);
 
                     return true;
                 }
@@ -387,7 +387,7 @@ namespace RogsoftwareServer.packet.workers
 
                     if (_cl.soket != null)
                         if (_cl.soket.Connected)
-                            _cl.sendData(tjo);
+                            _cl.sendBuffers.Add(tjo);
 
                     return true;
                 }
@@ -417,9 +417,7 @@ namespace RogsoftwareServer.packet.workers
 
                         if (_cl.soket != null)
                             if (_cl.soket.Connected)
-                                _cl.sendData(tjo);
-
-                        Thread.Sleep(20);
+                                _cl.sendBuffers.Add(tjo);
                     }
 
                     return true;
@@ -476,10 +474,9 @@ namespace RogsoftwareServer.packet.workers
 
                 na.packet_id = (int)PacketEnums.CHEAT.ServerToClient.NEED_USER_AUTH;
 
-
                 string tjo = JsonConvert.SerializeObject(na);
-
-                _cl.sendData(tjo);
+                
+                _cl.sendBuffers.Add(tjo);
             }
         }
     }
