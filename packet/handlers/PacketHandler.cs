@@ -148,31 +148,31 @@ namespace RogsoftwareServer.packet.handlers
 
                 packetID = Convert.ToInt32(obj.SelectToken("packet_id"));
 
-                //switch ((PacketEnums.LOADER.ClientToServer)packetID)
-                //{
-                //    case PacketEnums.CHEAT.ClientToServer.USER_AUTH:
-                //        if (!new workers.CheatWorker.fromClientToServer().UserAuth(this.client, this.cphData))
-                //        {
+                switch ((PacketEnums.LOADER.ClientToServer)packetID)
+                {
+                    case PacketEnums.LOADER.ClientToServer.USER_AUTH:
+                        if (!new workers.LoaderWorker.fromClientToServer().UserAuth(this.client, this.cphData))
+                        {
 
-                //        }
+                        }
 
-                //        break;
-                //    case PacketEnums.CHEAT.ClientToServer.CHAT_MESSAGE_SENT:
-                //        if (!new workers.CheatWorker.fromClientToServer().ChatMessageSent(this.client, this.cphData))
-                //        {
+                        break;
+                    case PacketEnums.LOADER.ClientToServer.HWID_AUTH:
+                        if (!new workers.LoaderWorker.fromClientToServer().HwidAuth(this.client, this.cphData))
+                        {
 
-                //        }
-                //        break;
-                //    default:
-                //        return false;
-                //        break;
-                //}
+                        }
+                        break;
+                    default:
+                        return false;
+                        break;
+                }
 
             }
             catch (Exception ex)
             {
                 //if (Globals.loggerConfig.isDebugMode)
-                //      Globals.LoggerG.Log("handle object exception");
+                //    Globals.LoggerG.Log("handle object exception");
 
                 return false;
             }

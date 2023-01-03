@@ -11,8 +11,7 @@ namespace PacketEnums
         enum ServerToClient
         {
             USER_AUTH_RESPONSE,
-            HWID_AUTH_REPONSE,
-            CHEAT_RESPONSE
+            HWID_AUTH_RESPONSE,
         }
 
         enum ClientToServer

@@ -76,7 +76,6 @@ namespace RogsoftwareServer.packet.workers
 
             return rCfg;
         }
-
         public c_userConfig_t createNewConfig(int uid)
         {
             using (var baglan = new MySqlConnection(Globals.databaseConfig.connectorString))
@@ -99,7 +98,6 @@ namespace RogsoftwareServer.packet.workers
                 }
             }
         }
-
         public class fromClientToServer
         {
             public bool UpdateUserFromToken(Client _cl, string token)
@@ -145,6 +143,8 @@ namespace RogsoftwareServer.packet.workers
             {
                 if (_cl.CConfig.userAuthed)
                 {
+                    return true;
+
                     UserAuth slpd = new UserAuth();
 
                     slpd.packet_id = (int)PacketEnums.CHEAT.ServerToClient.USER_AUTH_RESPONSE;
@@ -532,7 +532,6 @@ namespace RogsoftwareServer.packet.workers
                 return false;
             }
         }
-
         public class fromServerToClient
         {
             public void SendNeedAuth(Client _cl)
@@ -551,17 +550,454 @@ namespace RogsoftwareServer.packet.workers
         }
     }
 
-
-
-
-
-
-
     public class LoaderWorker
     {
         public class fromClientToServer
         {
-            
+            public bool UserAuth(Client _cl, byte[] fullData)
+            {
+                if (_cl.CConfig.userAuthed)
+                {
+                    return true;
+
+                    UserAuth slpd = new UserAuth();
+
+                    slpd.packet_id = (int)PacketEnums.CHEAT.ServerToClient.USER_AUTH_RESPONSE;
+
+                    slpd.data.isSuccess = true;
+                    slpd.data.token = _cl.CConfig.userToken;
+                    slpd.data.username = _cl.CConfig.username;
+                    slpd.data.subs_till = "infinite...";
+
+
+                    string tjo = JsonConvert.SerializeObject(slpd);
+
+                    _cl.sendBuffers.Add(tjo);
+
+                    FUN_OK fo = new FUN_OK();
+
+                    fo.packet_id = (int)PacketEnums.CHEAT.ServerToClient.FUN_OK;
+
+                    string tjoxx = JsonConvert.SerializeObject(fo);
+
+                    if (_cl.soket != null)
+                        if (_cl.soket.Connected)
+                            _cl.sendBuffers.Add(tjoxx);
+
+                    return true;
+                }
+
+                Globals.LoggerG.Log("yes sir");
+
+                try
+                {
+                    string workerString = Encoding.UTF8.GetString(fullData);
+
+                    JObject jsonObject = JObject.Parse(workerString);
+
+                    jsonObject =           JObject.Parse(jsonObject.SelectToken("data").ToString());
+
+                    var username =         jsonObject.SelectToken("username").ToString();
+                    var password =         jsonObject.SelectToken("password").ToString();
+                    var userhwid =         jsonObject.SelectToken("hwid").ToString();
+
+                    using (var baglan = new MySqlConnection(Globals.databaseConfig.connectorString))
+                    {
+                        using (var cmd = new MySqlCommand("SELECT * FROM users WHERE BINARY username=@userusername AND password=@userpassword", baglan))
+                        {
+                            cmd.Parameters.AddWithValue("@userusername", username);
+                            cmd.Parameters.AddWithValue("@userpassword", password);
+                            cmd.Connection.Open();
+
+                            MySqlDataReader mdr = cmd.ExecuteReader();
+
+                            bool need_hwid_reset = false;
+
+                            bool uIsBanned = false;
+                            string uBanReason = "";
+                            string last_days = "";
+
+                            bool uSubIsActive = false;
+
+
+                            string uToken = "";
+                            string uUsername = "";
+                            string subsTill = "";
+                            int uID = -1;
+
+                            while (mdr.Read())
+                            {
+                                if (!string.IsNullOrEmpty(mdr["hwid"].ToString()))
+                                {
+                                    string user_hwid_from_db = mdr["hwid"].ToString();
+
+                                    if (userhwid != user_hwid_from_db)
+                                    {
+                                        need_hwid_reset = true;
+
+                                        using (var baglan2 = new MySqlConnection(Globals.databaseConfig.connectorString))
+                                        {
+                                            using (var cmd2 = new MySqlCommand("UPDATE users SET need_hwid_reset=1, new_hwid=@new_hwid WHERE id=@update_user_id", baglan2))
+                                            {
+                                                cmd2.Parameters.AddWithValue("@new_hwid", userhwid);
+                                                cmd2.Parameters.AddWithValue("@update_user_id", mdr["id"]);
+                                                cmd2.Connection.Open();
+                                                MySqlDataReader mdr2 = cmd2.ExecuteReader();
+                                                mdr2.Close();
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    using (var baglan3 = new MySqlConnection(Globals.databaseConfig.connectorString))
+                                    {
+                                        using (var cmd3 = new MySqlCommand("UPDATE users SET hwid=@register_new_hwid_value WHERE id=@update_user_id", baglan3))
+                                        {
+                                            cmd3.Parameters.AddWithValue("@register_new_hwid_value", userhwid);
+                                            cmd3.Parameters.AddWithValue("@update_user_id", mdr["id"]);
+                                            cmd3.Connection.Open();
+                                            MySqlDataReader mdr3 = cmd3.ExecuteReader();
+                                            mdr3.Close();
+                                        }
+                                    }
+                                }
+
+                                if (!string.IsNullOrEmpty(mdr["token"].ToString()))
+                                {
+                                    uToken = mdr["token"].ToString();
+                                }
+
+                                if (!string.IsNullOrEmpty(mdr["subs_till"].ToString()))
+                                {
+                                    subsTill = mdr["subs_till"].ToString();
+
+                                    DateTime currentTime = DateTime.Now;
+                                    DateTime databaseTime = DateTime.Parse(subsTill); // veritabanından aldığınız tarih değerini kullanın
+                                    TimeSpan ts = databaseTime - currentTime;
+
+                                    string elapsedTime = ts.Days + "." + ts.Hours + "." + ts.Minutes;
+
+                                    if (ts.Days > 0 || ts.Hours > 0 || ts.Minutes > 0 || ts.Seconds > 0)
+                                    {
+                                        uSubIsActive = true;
+                                    }
+                                }
+
+                                if (!string.IsNullOrEmpty(mdr["username"].ToString()))
+                                {
+                                    uUsername = mdr["username"].ToString();
+                                }
+                                
+                                if (!string.IsNullOrEmpty(mdr["user_status"].ToString()))
+                                {
+                                    uIsBanned = (int)mdr["user_status"] == 0 ? true : false;
+
+                                    if (uIsBanned)
+                                    {
+                                        if (!string.IsNullOrEmpty(mdr["status_content"].ToString()))
+                                        {
+                                            uBanReason = mdr["status_content"].ToString();
+                                        }
+                                    }
+                                }
+
+                                uID = Convert.ToInt32(mdr["id"]);
+                            }
+
+                            if (uToken != "" && uID != -1)
+                            {
+                                // TODO: Token grabbed so you need to send okPacket :)
+                                if (uIsBanned)
+                                {
+                                    _cl.CConfig.userAuthed = false;
+                                    _cl.CConfig.userID = uID;
+                                    _cl.CConfig.userToken = uToken;
+                                    _cl.CConfig.username = uUsername;
+
+                                    PacketJsonSerializes.LoaderPacketData.serverToClient.USER_AUTH slpd = new PacketJsonSerializes.LoaderPacketData.serverToClient.USER_AUTH();
+
+                                    slpd.packet_id = (int)PacketEnums.LOADER.ServerToClient.USER_AUTH_RESPONSE;
+
+                                    slpd.data.isSuccess = true;
+                                    slpd.data.isBanned = true;
+                                    slpd.data.uBanReason = uBanReason;
+                                    slpd.data.need_hwid_reset = need_hwid_reset;
+                                    slpd.data.username = uUsername;
+                                    slpd.data.subs_till = subsTill;
+
+                                    string tjo = JsonConvert.SerializeObject(slpd);
+
+                                    _cl.sendBuffers.Add(tjo);
+                                }
+                                else if (need_hwid_reset)
+                                {
+                                    _cl.CConfig.userAuthed = false;
+                                    _cl.CConfig.userID = uID;
+                                    _cl.CConfig.userToken = uToken;
+                                    _cl.CConfig.username = uUsername;
+
+                                    PacketJsonSerializes.LoaderPacketData.serverToClient.USER_AUTH slpd = new PacketJsonSerializes.LoaderPacketData.serverToClient.USER_AUTH();
+
+                                    slpd.packet_id = (int)PacketEnums.LOADER.ServerToClient.USER_AUTH_RESPONSE;
+
+                                    slpd.data.isSuccess = true;
+                                    slpd.data.isBanned = false;
+                                    slpd.data.uBanReason = "You Are not banned...";
+                                    slpd.data.need_hwid_reset = true;
+                                    slpd.data.username = uUsername;
+                                    slpd.data.subs_till = subsTill;
+
+                                    string tjo = JsonConvert.SerializeObject(slpd);
+
+                                    _cl.sendBuffers.Add(tjo);
+                                }
+                                else
+                                {
+                                    _cl.CConfig.userAuthed = true;
+                                    _cl.CConfig.userID = uID;
+                                    _cl.CConfig.userToken = uToken;
+                                    _cl.CConfig.username = uUsername;
+
+                                    PacketJsonSerializes.LoaderPacketData.serverToClient.USER_AUTH slpd = new PacketJsonSerializes.LoaderPacketData.serverToClient.USER_AUTH();
+
+                                    slpd.packet_id = (int)PacketEnums.LOADER.ServerToClient.USER_AUTH_RESPONSE;
+
+                                    slpd.data.isSuccess = true;
+                                    slpd.data.isBanned = false;
+                                    slpd.data.uBanReason = "You Are not banned...";
+                                    slpd.data.need_hwid_reset = need_hwid_reset;
+                                    slpd.data.subs_active = uSubIsActive;
+                                    slpd.data.username = uUsername;
+                                    slpd.data.subs_till = subsTill;
+
+                                    string tjo = JsonConvert.SerializeObject(slpd);
+
+                                    _cl.sendBuffers.Add(tjo);
+                                }
+
+                                return true;
+                            }
+                            else
+                            {
+                                PacketJsonSerializes.LoaderPacketData.serverToClient.USER_AUTH slpd = new PacketJsonSerializes.LoaderPacketData.serverToClient.USER_AUTH();
+
+                                slpd.packet_id = (int)PacketEnums.LOADER.ServerToClient.USER_AUTH_RESPONSE;
+
+                                slpd.data.isSuccess = false;
+                                slpd.data.isBanned = false;
+                                slpd.data.uBanReason = "You Are not authorized...";
+                                slpd.data.need_hwid_reset = false;
+                                slpd.data.username = "You Are not authorized...";
+                                slpd.data.subs_till = "You Are not authorized...";
+
+                                string tjo = JsonConvert.SerializeObject(slpd);
+
+                                _cl.sendBuffers.Add(tjo);
+
+                                // TODO: Token isn't grabbed so you need to send okButNoPacket :)
+                                return false;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Globals.LoggerG.Log("Err-> " + ex);
+                    return false;
+                }
+
+                return false;
+            }
+            public bool HwidAuth(Client _cl, byte[] fullData)
+            {
+                if (_cl.CConfig.userAuthed)
+                {
+                    return true;
+
+                    UserAuth slpd = new UserAuth();
+
+                    slpd.packet_id = (int)PacketEnums.CHEAT.ServerToClient.USER_AUTH_RESPONSE;
+
+                    slpd.data.isSuccess = true;
+                    slpd.data.token = _cl.CConfig.userToken;
+                    slpd.data.username = _cl.CConfig.username;
+                    slpd.data.subs_till = "infinite...";
+
+
+                    string tjo = JsonConvert.SerializeObject(slpd);
+
+                    _cl.sendBuffers.Add(tjo);
+
+                    FUN_OK fo = new FUN_OK();
+
+                    fo.packet_id = (int)PacketEnums.CHEAT.ServerToClient.FUN_OK;
+
+                    string tjoxx = JsonConvert.SerializeObject(fo);
+
+                    if (_cl.soket != null)
+                        if (_cl.soket.Connected)
+                            _cl.sendBuffers.Add(tjoxx);
+
+                    return true;
+                }
+
+                try
+                {
+                    string workerString = Encoding.UTF8.GetString(fullData);
+
+                    JObject jsonObject = JObject.Parse(workerString);
+
+                    jsonObject = JObject.Parse(jsonObject.SelectToken("data").ToString());
+
+                    var userhwid = jsonObject.SelectToken("hwid").ToString();
+
+                    using (var baglan = new MySqlConnection(Globals.databaseConfig.connectorString))
+                    {
+                        using (var cmd = new MySqlCommand("SELECT * FROM users WHERE hwid=@userhwid", baglan))
+                        {
+                            cmd.Parameters.AddWithValue("@userhwid", userhwid);
+                            cmd.Connection.Open();
+
+                            MySqlDataReader mdr = cmd.ExecuteReader();
+
+                            bool need_hwid_reset = false;
+
+                            bool uIsBanned = false;
+                            string uBanReason = "";
+                            string last_days = "";
+
+                            bool uSubIsActive = false;
+
+
+                            string uToken = "";
+                            string uUsername = "";
+                            string subsTill = "";
+                            int uID = -1;
+
+                            float diffOfDays = 0;
+
+                            while (mdr.Read())
+                            {
+                                if (!string.IsNullOrEmpty(mdr["token"].ToString()))
+                                {
+                                    uToken = mdr["token"].ToString();
+                                }
+
+                                if (!string.IsNullOrEmpty(mdr["subs_till"].ToString()))
+                                {
+                                    subsTill = mdr["subs_till"].ToString();
+
+                                    DateTime currentTime = DateTime.Now;
+                                    DateTime databaseTime = DateTime.Parse(subsTill); // veritabanından aldığınız tarih değerini kullanın
+                                    TimeSpan ts = databaseTime - currentTime;
+
+                                    string elapsedTime = ts.Days + "." + ts.Hours + "." + ts.Minutes;
+
+                                    if (ts.Days > 0 || ts.Hours > 0 || ts.Minutes > 0 || ts.Seconds > 0)
+                                    {
+                                        uSubIsActive = true;
+                                    }
+
+                                }
+
+                                if (!string.IsNullOrEmpty(mdr["username"].ToString()))
+                                {
+                                    uUsername = mdr["username"].ToString();
+                                }
+
+                                if (!string.IsNullOrEmpty(mdr["user_status"].ToString()))
+                                {
+                                    uIsBanned = (int)mdr["user_status"] == 0 ? true : false;
+
+                                    if (uIsBanned)
+                                    {
+                                        if (!string.IsNullOrEmpty(mdr["status_content"].ToString()))
+                                        {
+                                            uBanReason = mdr["status_content"].ToString();
+                                        }
+                                    }
+                                }
+
+                                uID = Convert.ToInt32(mdr["id"]);
+                            }
+
+                            if (uToken != "" && uID != -1)
+                            {
+                                // TODO: Token grabbed so you need to send okPacket :)
+                                if (uIsBanned)
+                                {
+                                    _cl.CConfig.userAuthed = false;
+                                    _cl.CConfig.userID = uID;
+                                    _cl.CConfig.userToken = uToken;
+                                    _cl.CConfig.username = uUsername;
+
+                                    PacketJsonSerializes.LoaderPacketData.serverToClient.HWID_AUTH slpd = new PacketJsonSerializes.LoaderPacketData.serverToClient.HWID_AUTH();
+
+                                    slpd.packet_id = (int)PacketEnums.LOADER.ServerToClient.HWID_AUTH_RESPONSE;
+
+                                    slpd.data.isSuccess = true;
+                                    slpd.data.username = uUsername;
+                                    slpd.data.subs_till = subsTill;
+
+                                    slpd.data.isBanned = uIsBanned;
+                                    slpd.data.uBanReason = uBanReason;
+
+                                    string tjo = JsonConvert.SerializeObject(slpd);
+
+                                    _cl.sendBuffers.Add(tjo);
+                                }
+                                else
+                                {
+                                    _cl.CConfig.userAuthed = true;
+                                    _cl.CConfig.userID = uID;
+                                    _cl.CConfig.userToken = uToken;
+                                    _cl.CConfig.username = uUsername;
+
+                                    PacketJsonSerializes.LoaderPacketData.serverToClient.HWID_AUTH slpd = new PacketJsonSerializes.LoaderPacketData.serverToClient.HWID_AUTH();
+
+                                    slpd.packet_id = (int)PacketEnums.LOADER.ServerToClient.HWID_AUTH_RESPONSE;
+
+                                    slpd.data.isSuccess = true;
+                                    slpd.data.username = uUsername;
+                                    slpd.data.subs_active = uSubIsActive;
+                                    slpd.data.subs_till = subsTill;
+
+                                    string tjo = JsonConvert.SerializeObject(slpd);
+
+                                    _cl.sendBuffers.Add(tjo);
+                                }
+
+                                return true;
+                            }
+                            else
+                            {
+                                PacketJsonSerializes.LoaderPacketData.serverToClient.HWID_AUTH slpd = new PacketJsonSerializes.LoaderPacketData.serverToClient.HWID_AUTH();
+
+                                slpd.packet_id = (int)PacketEnums.LOADER.ServerToClient.HWID_AUTH_RESPONSE;
+
+                                slpd.data.isSuccess = false;
+                                slpd.data.username = "You Are not authorized...";
+                                slpd.data.subs_till = "You Are not authorized...";
+                                slpd.data.subs_active = uSubIsActive;
+
+                                string tjo = JsonConvert.SerializeObject(slpd);
+
+                                _cl.sendBuffers.Add(tjo);
+
+                                // TODO: Token isn't grabbed so you need to send okButNoPacket :)
+                                return false;
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+
+                return false;
+            }
         }
     }
 }

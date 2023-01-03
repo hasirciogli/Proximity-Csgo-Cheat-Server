@@ -75,6 +75,8 @@ public class Client
             {
                 string clientPacketWhoFind2 = Encoding.UTF8.GetString(this.clientDComet);
 
+                Globals.LoggerG.Log("recv -> "+ clientPacketWhoFind2);
+                
                 if (!this.CConfig.PoxiAuthStatus)
                 {
                     ProxiAuth pa = new ProxiAuth();
@@ -221,7 +223,7 @@ public class Client
         catch (Exception e)
         {
             Console.WriteLine(e);
-            throw;
+            return;
         }
     }
 
@@ -234,7 +236,7 @@ public class Client
     {
         if (sendBuffers.Count > 0)
         {
-            Globals.LoggerG.Log(sendBuffers[0]);
+            Globals.LoggerG.Log("Sent -> " + sendBuffers[0]);
             this.sendData(sendBuffers[0]);
             this.sendBuffers.RemoveAt(0);
         }

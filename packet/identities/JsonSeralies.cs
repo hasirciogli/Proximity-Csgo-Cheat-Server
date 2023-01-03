@@ -128,4 +128,51 @@ namespace PacketJsonSerializes
             }
         }
     }
+
+
+
+    namespace LoaderPacketData
+    {
+        namespace serverToClient
+        {
+            public class FUN_OK
+            {
+                public int packet_id = 0;
+            }
+
+            public class USER_AUTH
+            {
+                public class thisZData
+                {
+                    public bool   isSuccess        = false;
+                    public bool   isBanned         = false;
+                    public bool   subs_active      = false;
+                    public bool   need_hwid_reset  = false;
+                    public string uBanReason       = "";
+                    public string username         = "";
+                    public string subs_till        = "";
+                }
+
+                public int packet_id = 0;
+                public thisZData data = new thisZData();
+            }
+
+            public class HWID_AUTH
+            {
+                public class thisZData
+                {
+                    public bool isSuccess = false;
+                    public bool subs_active = false;
+                    public bool   isBanned         = false;
+                    public string username = "";
+                    public string uBanReason = "";
+                    public string subs_till = "";
+                }
+
+                public int packet_id = 0;
+                public thisZData data = new thisZData();
+            }
+        }
+    }
+
 }
