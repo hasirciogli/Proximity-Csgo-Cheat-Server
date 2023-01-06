@@ -12,6 +12,7 @@ namespace PacketEnums
         {
             USER_AUTH_RESPONSE,
             HWID_AUTH_RESPONSE,
+			VERSION_RESP,
         }
 
         enum ClientToServer
@@ -35,6 +36,7 @@ namespace PacketEnums
             CONFIG_REMOVE_RESPONSE,
             CONFIG_SAVE_RESPONSE,
             CHAT_MESSAGE_SENT,
+            VERSION_RESP,
         }
 
         enum ClientToServer

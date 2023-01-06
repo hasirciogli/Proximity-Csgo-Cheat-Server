@@ -13,6 +13,7 @@ namespace RogsoftwareServer.Server
     {
         public static List<Client> connectedClients = new List<Client>();
         public static Socket ServerSocket;
+        public static float relatedVersion = 1.0f;
 
         public static void runServer()
         {

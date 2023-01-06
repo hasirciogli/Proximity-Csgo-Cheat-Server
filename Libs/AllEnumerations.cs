@@ -24,6 +24,7 @@ namespace RogsoftwareServer.Libs.AllEnumerations
         public bool userAuthed;
         public isWhat whoIAM;
         public bool PoxiAuthStatus;
+        public bool crvStatus;
 
 
 

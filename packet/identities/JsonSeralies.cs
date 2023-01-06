@@ -126,6 +126,17 @@ namespace PacketJsonSerializes
                 public int packet_id = 0;
                 public thisZData data = new thisZData();
             }
+
+            public class VERSION_RESP
+            {
+                public class thisZData
+                {
+                    public bool valid = false;
+                }
+
+                public int packet_id = 0;
+                public thisZData data = new thisZData();
+            }
         }
     }
 
@@ -167,6 +178,17 @@ namespace PacketJsonSerializes
                     public string username = "";
                     public string uBanReason = "";
                     public string subs_till = "";
+                }
+
+                public int packet_id = 0;
+                public thisZData data = new thisZData();
+            }
+            
+            public class VERSION_RESP
+            {
+                public class thisZData
+                {
+                    public bool valid = false;
                 }
 
                 public int packet_id = 0;

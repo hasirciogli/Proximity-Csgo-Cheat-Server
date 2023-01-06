@@ -4,22 +4,10 @@ using RogsoftwareServer.packet.handlers;
 using RogsoftwareServer.Server;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net.Sockets;
-using System.Net.WebSockets;
-using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Org.BouncyCastle.Bcpg.Sig;
 using RogsoftwareServer.packet.workers;
-using PacketJsonSerializes.CheatPacketData.serverToClient;
 using RogsoftwareServer.Libs.AllEnumerations;
-using System.Xml.Linq;
 using RogsoftwareServer.Libs;
 using Timer = System.Threading.Timer;
 
@@ -134,6 +122,38 @@ public class Client
 
 
                     string who_i_am = jObj.SelectToken("who_i_am").ToString();
+
+                    if (!this.CConfig.crvStatus)
+                    {
+                        float programVersion = ((float)jObj.SelectToken("cver"));
+                        
+                        if (programVersion < Server.relatedVersion || programVersion > Server.relatedVersion)
+                        {
+                            PacketJsonSerializes.CheatPacketData.serverToClient.VERSION_RESP vresp = new PacketJsonSerializes.CheatPacketData.serverToClient.VERSION_RESP();
+
+                            vresp.packet_id = (int)PacketEnums.CHEAT.ServerToClient.VERSION_RESP;
+                            vresp.data.valid = false;
+
+                            string tjo = JsonConvert.SerializeObject(vresp);
+
+                            this.sendBuffers.Add(tjo);
+                            return;
+                        }
+                        else
+                        {
+                            PacketJsonSerializes.CheatPacketData.serverToClient.VERSION_RESP vresp = new PacketJsonSerializes.CheatPacketData.serverToClient.VERSION_RESP();
+
+                            vresp.packet_id = (int)PacketEnums.CHEAT.ServerToClient.VERSION_RESP;
+                            vresp.data.valid = true;
+
+                            string tjo = JsonConvert.SerializeObject(vresp);
+
+                            this.sendBuffers.Add(tjo);
+
+                            this.CConfig.crvStatus = true;
+                        }
+                    }
+
 
                     if (who_i_am == "cheat")
                     {
