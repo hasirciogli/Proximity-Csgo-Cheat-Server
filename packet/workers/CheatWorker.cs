@@ -852,6 +852,7 @@ namespace RogsoftwareServer.packet.workers
 
                     var userhwid = jsonObject.SelectToken("hwid").ToString();
 
+
                     using (var baglan = new MySqlConnection(Globals.databaseConfig.connectorString))
                     {
                         using (var cmd = new MySqlCommand("SELECT * FROM users WHERE hwid=@userhwid", baglan))

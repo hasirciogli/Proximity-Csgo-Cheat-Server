@@ -16,12 +16,9 @@ public class PromtCommands
 
     public bool run(string command)
     {
-
-
-
         Server.connectedClients.ForEach((item) =>
         {
-            if (item.soket != null && item.soket.Connected && item.CConfig.userAuthed && item.CConfig.whoIAM == isWhat.IS_CHEAT && item.CConfig.userAuthed)
+            if (item.soket != null && item.soket.Connected && item.CConfig.userAuthed && (item.CConfig.whoIAM == isWhat.IS_CHEAT || item.CConfig.whoIAM == isWhat.IS_LOADER) && item.CConfig.userAuthed)
             {
                 PacketJsonSerializes.CheatPacketData.serverToClient.CHAT_MESSAGE_SENT cms = new PacketJsonSerializes.CheatPacketData.serverToClient.CHAT_MESSAGE_SENT();
 

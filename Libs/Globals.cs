@@ -51,6 +51,6 @@ public static class Globals
     }
     public static class databaseConfig
     {
-        public static string connectorString = $"SERVER=78.189.149.69;DATABASE=cheat;UID=ttk;PASSWORD=11223344;";
+        public static string connectorString = $"SERVER=176.53.84.227;DATABASE=hsrcpayc_proximitycsgo;UID=hsrcpayc_proximitycsgo;PASSWORD='^h(Yl_][n;6x';";
     }
 }

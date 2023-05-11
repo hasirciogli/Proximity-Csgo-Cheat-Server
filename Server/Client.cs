@@ -9,7 +9,7 @@ using System.Text;
 using RogsoftwareServer.packet.workers;
 using RogsoftwareServer.Libs.AllEnumerations;
 using RogsoftwareServer.Libs;
-using Timer = System.Threading.Timer;
+using System.Threading;
 
 public class Client
 {
@@ -17,7 +17,7 @@ public class Client
     public byte[] clientDComet = new byte[8192];
     public readonly int clientID;
     public bool forceCloseThisClient = false;
-    public Timer threadTimer;
+    public Thread threadTimer;
     public ClientConfig CConfig = new ClientConfig();
 
     public bool NeedAuthSented = false;
@@ -29,7 +29,8 @@ public class Client
         this.clientID = Server.connectedClients.Count; 
 
         this.runClient(skt);
-        threadTimer = new Timer(sokSendTimer, null, 0, 200);
+        threadTimer = new Thread(new ThreadStart(sokSendTimer));
+        threadTimer.Start();
     }
 
     public void runClient(Socket skt)
@@ -52,8 +53,8 @@ public class Client
         try
         {
 
-            int len = this.soket.EndReceive(ar);
-            if (len <= 0)
+            int len = this.soket.EndReceive(ar, out SocketError se);
+            if (len <= 0 || se != 0)
             {
                 // TODO: Disconnect
                 this.disconnect();
@@ -201,6 +202,7 @@ public class Client
     {
         try
         {
+            threadTimer.Abort();
             this.soket.Shutdown(SocketShutdown.Both);
         }
         catch (Exception e)
@@ -252,13 +254,29 @@ public class Client
         this.soket.Send(data, 0, data.Length, SocketFlags.None);
     }
 
-    public void sokSendTimer(Object o)
+    public void sokSendTimer()
     {
-        if (sendBuffers.Count > 0)
+        try
         {
-            Globals.LoggerG.Log("Sent -> " + sendBuffers[0]);
-            this.sendData(sendBuffers[0]);
-            this.sendBuffers.RemoveAt(0);
+            while (this.soket.Connected)
+            {
+                if (sendBuffers.Count > 0)
+                {
+                    Globals.LoggerG.Log("Sent -> " + sendBuffers[0]);
+
+                    string xx = sendBuffers[0];
+                    this.sendBuffers.RemoveAt(0);
+
+                    this.sendData(xx);
+                }
+
+                Thread.Sleep(123);
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
         }
     }
 
