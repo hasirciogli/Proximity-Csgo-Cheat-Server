@@ -14,7 +14,7 @@ using System.Threading;
 public class Client
 {
     public Socket soket;
-    public byte[] clientDComet = new byte[8192];
+    public byte[] clientDComet = new byte[100000];
     public readonly int clientID;
     public bool forceCloseThisClient = false;
     public Thread threadTimer;
@@ -126,9 +126,9 @@ public class Client
 
                     if (!this.CConfig.crvStatus)
                     {
-                        float programVersion = ((float)jObj.SelectToken("cver"));
-                        
-                        if (programVersion < Server.relatedVersion || programVersion > Server.relatedVersion)
+                        string programVersion = ((string)jObj.SelectToken("cver"));
+
+                        if (who_i_am == "cheat" && programVersion != Server.cheatRelatedVersion)
                         {
                             PacketJsonSerializes.CheatPacketData.serverToClient.VERSION_RESP vresp = new PacketJsonSerializes.CheatPacketData.serverToClient.VERSION_RESP();
 
@@ -140,19 +140,20 @@ public class Client
                             this.sendBuffers.Add(tjo);
                             return;
                         }
-                        else
+                        else if (who_i_am == "loader" && programVersion != Server.loaderRelatedVersion)
                         {
-                            PacketJsonSerializes.CheatPacketData.serverToClient.VERSION_RESP vresp = new PacketJsonSerializes.CheatPacketData.serverToClient.VERSION_RESP();
+                            PacketJsonSerializes.LoaderPacketData.serverToClient.VERSION_RESP vresp = new PacketJsonSerializes.LoaderPacketData.serverToClient.VERSION_RESP();
 
-                            vresp.packet_id = (int)PacketEnums.CHEAT.ServerToClient.VERSION_RESP;
-                            vresp.data.valid = true;
+                            vresp.packet_id = (int)PacketEnums.LOADER.ServerToClient.VERSION_RESP;
+                            vresp.data.valid = false;
 
                             string tjo = JsonConvert.SerializeObject(vresp);
 
                             this.sendBuffers.Add(tjo);
-
-                            this.CConfig.crvStatus = true;
+                            return;
                         }
+
+                        this.CConfig.crvStatus = true;
                     }
 
 

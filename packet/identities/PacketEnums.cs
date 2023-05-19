@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text; 
 using System.Threading.Tasks;
 
-namespace PacketEnums 
+namespace PacketEnums
 {
     namespace LOADER
     {
@@ -12,6 +12,7 @@ namespace PacketEnums
         {
             USER_AUTH_RESPONSE,
             HWID_AUTH_RESPONSE,
+            CHEAT_BYTE_RESPONSE,
 			VERSION_RESP,
         }
 
@@ -19,6 +20,7 @@ namespace PacketEnums
         {
             USER_AUTH,
             HWID_AUTH,
+            LOAD_CHEAT_BYTE,
         }
     }
 
